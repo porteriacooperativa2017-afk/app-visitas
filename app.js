@@ -267,14 +267,24 @@ btnRegistrar.addEventListener('click', () => {
     };
 
     // 1. Enviamos el registro en segundo plano a Node.js -> Google Sheets
-    fetch('https://script.google.com/macros/s/AKfycbwUp43bKrKpBkRzDkWsfKhdUE5zccWl8AZFumvwv71oDvdbfIeJq4U10y99udtsISeN/exec', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log("Guardado en base de datos:", data);
+    // En tu app.js, dentro de la función que envía los datos
+async function enviarDatos(datos) {
+    const URL_API_GOOGLE = 'https://script.google.com/macros/s/AKfycbwUp43bKrKpBkRzDkWsfKhdUE5zccWl8AZFumvwv71oDvdbfIeJq4U10y99udtsISeN/exec'; // La URL que sacaste de "Implementar"
+
+    try {
+        const response = await fetch(URL_API_GOOGLE, {
+            method: 'POST',
+            mode: 'no-cors', // Fundamental para que funcione desde el APK
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(datos)
+        });
+        
+        console.log("Datos enviados a Google Sheets");
+        // Aquí disparas tu función de WhatsApp
+    } catch (error) {
+        console.error("Error al conectar con Google:", error);
+    }
+}
         
         // 2. DISPARO DE WHATSAPP GRATUITO (Solo en Modo Normal)
         if (!modoEventoCheck.checked && nroContacto && nroContacto !== "N/A") {
