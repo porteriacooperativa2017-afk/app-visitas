@@ -4,8 +4,34 @@ const URL_GOOGLE = 'https://script.google.com/macros/s/AKfycbx81QHVekrnMEKtE2O15
 
 // --- MAESTRO DE DATOS ---
 const maestroSectores = {
-    "PLANTA LOGISTICA": [{ nombre: "MUGNECO ADRIAN", contacto: "5492615320950" }],
-    "CAPITAL HUMANO": [{ nombre: "Fernández Rubén", contacto: "5492615320950" }, { nombre: "Pablo Jacuzzi", contacto: "5492615320950" }],
+    "PLANTA LOGISTICA": [{ nombre: "MUGNECO ADRIAN", contacto: "5492615320950" },
+    { nombre: "DI LORENZO DIEGO", contacto: "5492615320950" },
+    { nombre: "CARBAJO RODRIGO", contacto: "5492615320950" },
+    { nombre: "PUESTO 3", contacto: "5492615320950" }],
+     "ADMINISTRACIÓN GERENCIA": [{ nombre: "MARCELO MARTÍN", contacto: "5492615320950" },
+    { nombre: "MARCOS BUSTOS", contacto: "5492615320950" },],
+     "ADMINISTRACIÓN": [{ nombre: "GARAY DIEGO", contacto: "5492615320950" },
+    { nombre: "AGÜERO ANTONIO", contacto: "5492615320950" },
+    { nombre: "VIDELA JAVIER", contacto: "5492615320950" },
+    { nombre: "VELEZ DANIEL", contacto: "5492615320950" },{nombre: "FERNANDEZ JOSE LUIS", contacto: "5492615320950"}],
+     "MARKETING: COMERCIAL": [{ nombre: "JULIA REINA", contacto: "5492615320950" },
+    { nombre: "SEPULVEDA MARCELA", contacto: "5492615320950" },
+    { nombre: "TESCARI MARIA JOSE", contacto: "5492615320950" },{ nombre: "PEREZ AGUSTIN", contacto: "5492615320950" }
+    ],
+     "COMPRAS Y VENTAS": [{ nombre: "MOLINA ANDRES", contacto: "5492615320950" },
+    { nombre: "SANABRIA JUAN", contacto: "5492615320950" },
+    { nombre: "ECHEVERRIA EMILIANO", contacto: "5492615320950" },
+    { nombre: "PEREIRA NATALIA", contacto: "5492615320950" }],
+    "SISTEMAS": [{ nombre: "LUJAN OMAR", contacto: "5492615320950" }, 
+    { nombre: "PLACCI MARTIN", contacto: "5492615320950" },
+    { nombre: "PUEBLA ADRIAN", contacto: "5492615320950" },{ nombre: "ALVAREZ FERNANDO", contacto: "5492615320950" },
+    { nombre: "DESARROLLO", contacto: "5492615320950" }], 
+     "DIRECCIÓN TÉCNICA": [{ nombre: "NADAL CECILIA", contacto: "5492615320950" },
+      { nombre: "RIOS DANIEL", contacto: "5492615320950" },
+    { nombre: "BUSTOS NATALIA", contacto: "5492615320950" },
+    { nombre: "ESCUDERO CARINA ", contacto: "5492615320950" },{ nombre: "AGÜERO JENIFER", contacto: "5492615320950" }],  
+    "OPERADOR LOGÍSTICO NAVE 2": [{ nombre: "CONSTANTINO ADRIANA", contacto: "5492615320950" },{ nombre: "VALDEZ LILIANA", contacto: "5492615320950" },],  
+    "GERENCIA LOGISTICA": [{ nombre: "FUNES CRISTIAN", contacto: "5492615320950" }],
     // ... (aquí mantén toda tu lista de sectores igual)
     "EVENTO": [{ nombre: "EVENTO", contacto: "N/A" }]
 };
