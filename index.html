@@ -37,7 +37,6 @@
                     <label for="escaneoRaw"><i class="fa-solid fa-qrcode"></i> Esperando Escaneo (DNI o QR)...</label>
                     <input type="text" id="escaneoRaw" placeholder="Haga clic aquí y escanee..." autofocus required>
                     <span class="scanner-status" id="scannerStatus">Lector Listo</span>
-                    <div id="reader" style="width: 100%;"></div>
                 </div>
                 <button class="btn-qr" onclick="iniciarEscaneo()">📸 Escanear QR</button>
 <div id="reader"></div>
@@ -84,10 +83,16 @@
             </form>
         </main>
     </div>
+    
+
+    <script src="app.js"></script>
+</body>
+</html>
     <button id="btnWhatsApp" class="btn-whatsapp" style="display:none; background-color: #25d366; color: white; margin-top: 15px;">
     🚀 Enviar WhatsApp
 </button>
+</div>
 
-    <script src="app.js"></script>
+<script src="https://unpkg.com/html5-qrcode"></script>
 </body>
 </html>
