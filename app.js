@@ -270,33 +270,62 @@ btnRegistrar.addEventListener('click', () => {
     };
 
     // 1. Enviamos el registro en segundo plano a Node.js -> Google Sheets
-    fetch('/api/registro', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log("Guardado en base de datos:", data);
-        
-        // 2. DISPARO DE WHATSAPP GRATUITO (Solo en Modo Normal)
-        if (!modoEventoCheck.checked && nroContacto && nroContacto !== "N/A") {
-            // Estructuramos el texto con negritas para WhatsApp
-            const textoMensaje = `📢 *Aviso de Ingreso - QR-U*\n\nHola *${payload.anfitrion}*,\nte informamos que se encuentra en guardia:\n\n👤 *Visita:* ${payload.datosPersonales}\n🏢 *Empresa:* ${payload.empresa}\n📍 *Sector:* ${payload.sector}\n📝 *Obs:* ${payload.observaciones}\n🕒 *Hora:* ${payload.fechaHora}`;
-            
-            // Creamos el enlace oficial codificado para que no falle por espacios o caracteres
-            const urlWhatsApp = `https://api.whatsapp.com/send?phone=${nroContacto}&text=${encodeURIComponent(textoMensaje)}`;
-            
-            // Abre WhatsApp Web en una pestaña nueva listo para presionar Enter
-            window.open(urlWhatsApp, '_blank');
-        }
-        
-        limpiarFormulario();
-    })
-    .catch(error => {
-        console.error("Error:", error);
-        alert("🚨 Error de comunicación con el servidor local.");
-    });
-});
+    async function iniciarEscaneo() {
+    // 1. Iniciamos el escaneo como siempre
+    try {
+        await html5QrCode.start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            (decodedText) => {
+                // Llenamos el campo
+                const inputField = document.getElementById('datosPersonales');
+                inputField.value = decodedText;
+                
+                // Forzamos los eventos para que el formulario tome el valor
+                inputField.dispatchEvent(new Event('input', { bubbles: true }));
+                
+                // Detenemos la cámara
+                html5QrCode.stop();
 
-cargarSectores();
+                // 2. UNA VEZ ESCANEADO, ENVIAMOS A GOOGLE
+                enviarAFormulario(decodedText);
+            },
+            (errorMessage) => { /* ignorar */ }
+        );
+    } catch (err) {
+        alert("Error de cámara");
+    }
+}
+
+// Nueva función auxiliar para enviar los datos
+async function enviarAFormulario(valorEscaneado) {
+    const btnWP = document.getElementById('btnWhatsApp');
+    
+    const datos = {
+        datosPersonales: valorEscaneado,
+        empresa: document.getElementById('empresa').value,
+        sector: document.getElementById('sector').value,
+        anfitrion: document.getElementById('anfitrion').value,
+        observaciones: document.getElementById('observaciones').value,
+        modoEvento: document.getElementById('tuSwitchModo').checked
+    };
+
+    try {
+        const response = await fetch('https://script.google.com/macros/s/AKfycbx81QHVekrnMEKtE2O15ZKMY2HRBRPOSxTj5rNtET8A7UqvC3QQEt4gSC63g4Ol2Zk/exec', {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(datos)
+        });
+
+        alert("✅ Registro guardado.");
+        
+        // Activamos el botón de WhatsApp
+        const mensajeWP = `Nuevo ingreso: ${valorEscaneado}`;
+        btnWP.style.display = "block";
+        btnWP.onclick = () => window.open(`https://wa.me/5492615320950?text=${encodeURIComponent(mensajeWP)}`, '_blank');
+        
+    } catch (error) {
+        alert("Error al guardar en la planilla.");
+    }
+}
