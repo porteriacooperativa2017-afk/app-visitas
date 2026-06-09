@@ -4,7 +4,7 @@ const axios = require('axios');
 const app = express();
 
 // Configuración del Puerto
-const PORT = process.env.PORT || 3000;
+
 
 // URL de tu Google Sheet (para guardar el registro)
 const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbwUp43bKrKpBkRzDkWsfKhdUE5zccWl8AZFumvwv71oDvdbfIeJq4U10y99udtsISeN/exec";
