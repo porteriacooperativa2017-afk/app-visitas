@@ -1,25 +1,45 @@
 const html5QrCode = new Html5Qrcode("reader");
 
-function iniciarEscaneo() {
-    html5QrCode.start(
-        { facingMode: "environment" }, // Cámara trasera
-        { fps: 10, qrbox: { width: 250, height: 250 } },
-        (decodedText) => {
-            // Esto se ejecuta cuando lee un QR
-            document.getElementById('escaneoRaw').value = decodedText;
-            alert("QR Detectado: " + decodedText);
-            
-            // Cerrar cámara después de leer
-            html5QrCode.stop().then(() => {
-                console.log("Cámara apagada");
-            });
-        },
-        (errorMessage) => {
-            // Esto ignora los errores de escaneo mientras busca
-        }
-    ).catch(err => {
-        alert("Error al abrir cámara: " + err);
-    });
+async function iniciarEscaneo() {
+    // Si ya hay una instancia, la detenemos antes de iniciar
+    if (html5QrCode.isScanning) {
+        return;
+    }
+
+    try {
+        await html5QrCode.start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            (decodedText) => {
+                // 1. EL CAMPO: Asegurate que 'datosPersonales' sea el ID correcto que tienes en tu HTML
+                const inputField = document.getElementById('datosPersonales');
+                
+                if (inputField) {
+                    // 2. Insertamos el valor
+                    inputField.value = decodedText;
+
+                    // 3. DISPARAMOS LOS EVENTOS (Esto engaña al formulario para que "sienta" que escribiste)
+                    inputField.dispatchEvent(new Event('input', { bubbles: true }));
+                    inputField.dispatchEvent(new Event('change', { bubbles: true }));
+                    
+                    // 4. Simulamos el Enter por si acaso
+                    inputField.dispatchEvent(new KeyboardEvent('keydown', {
+                        key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true
+                    }));
+                }
+
+                // 5. DETENEMOS EL ESCÁNER
+                html5QrCode.stop().then(() => {
+                    console.log("Escaneo finalizado");
+                });
+            },
+            (errorMessage) => {
+                // Esto es normal, son errores de búsqueda mientras no encuentra QR
+            }
+        );
+    } catch (err) {
+        alert("Error al acceder a la cámara. Revisa los permisos.");
+    }
 }
 
 // Tabla Maestro de Sectores y Anfitriones de Cofarmen
