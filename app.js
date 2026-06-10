@@ -1,5 +1,7 @@
 // Tabla Maestro de Sectores y Anfitriones de Cofarmen
-const html5QrCode = new Html5Qrcode("reader");
+var html5QrCode = null;
+var urlBase = 'https://sheetdb.io/api/v1/0r37mye22zrgm';
+
 const maestroSectores = {
     "PLANTA LOGISTICA": [
         { nombre: "MUGNECO ADRIAN", contacto: "5492615320950" }
