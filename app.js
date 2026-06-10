@@ -5,7 +5,7 @@
 ?sheet=MOVIMIENTOS
 const html5QrCode = new Html5Qrcode("reader");
 // REEMPLAZA ESTA URL por la que te dé SheetDB al vincular tu planilla de visitas
-const URL_API_SHEETDB = 'https://sheetdb.io/api/v1/tu_codigo_api_aqui';
+const URL_API_SHEETDB = 'https://sheetdb.io/api/v1/0r37mye22zrgm';
 
 // =========================================================================
 // 2. MAESTRO DE SECTORES Y ANFITRIONES (COFARMEN)
