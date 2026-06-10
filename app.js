@@ -250,35 +250,6 @@ async function iniciarEscaneo() {
     } catch (err) {
         alert("Permisos denegados para usar la cámara.");
     }
-},
-            (decodedText) => {
-                if (escaneoRawInput) {
-                    escaneoRawInput.value = decodedText;
-                    escaneoRawInput.dispatchEvent(new Event('input', { bubbles: true }));
-                }
-                html5QrCode.stop();
-            },
-            (errorMessage) => {}
-        );
-
-        // 🎯 3. TRUCO DEL ZOOM: Aplicar aumento automático por hardware si el celular lo soporta
-        const videoTrack = html5QrCode.getRunningTrack();
-        setTimeout(() => {
-            if (videoTrack) {
-                const capabilities = videoTrack.getCapabilities();
-                if (capabilities.zoom) {
-                    videoTrack.applyConstraints({
-                        advanced: [{ 
-                            zoom: 2.0 // Setea un zoom doble automático de arranque. Podés probar con 2.5 si querés más cerca todavía.
-                        }]
-                    }).catch(err => console.log("Error aplicando zoom: ", err));
-                }
-            }
-        }, 600); // Espera un instante corto a que el lente se estabilice
-
-    } catch (err) {
-        alert("Permisos denegados para usar la cámara.");
-    }
 }
 
 // =========================================================================
