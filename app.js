@@ -264,6 +264,12 @@ async function iniciarEscaneo() {
 // REEMPLAZA ESTA URL por el enlace largo de Google que obtenés al implementar (/exec)
 const URL_API_GOOGLE = 'https://script.google.com/macros/s/TU_ID_DE_APPS_SCRIPT/exec';
 
+// =========================================================================
+// 10. ENVÍO DIRECTO A TU GOOGLE APPS SCRIPT (SIN INTERMEDIARIOS)
+// =========================================================================
+// REEMPLAZA ESTA URL por el enlace largo de Google que obtenés al implementar (/exec)
+const URL_API_GOOGLE = 'https://script.google.com/macros/s/TU_ID_DE_APPS_SCRIPT/exec';
+
 if (btnRegistrar) {
     btnRegistrar.addEventListener('click', async () => {
         if (!datosPersonalesInput.value || !sectorSelect.value || !anfitrionSelect.value) {
