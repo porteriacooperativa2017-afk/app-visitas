@@ -1,23 +1,24 @@
-
 // =========================================================================
-// 1. CONFIGURACIÓN INICIAL Y CONEXIÓN A LA API
+// 1. CONFIGURACIÓN DE ENLACES Y CONEXIONES (REEMPLAZÁ ACÁ)
 // =========================================================================
-
 const html5QrCode = new Html5Qrcode("reader");
-// REEMPLAZA ESTA URL por la que te dé SheetDB al vincular tu planilla de visitas
-const URL_API_SHEETDB = 'https://sheetdb.io/api/v1/0r37mye22zrgm';
+
+// PEGÁ ACÁ EL ENLACE LARGO QUE TE DIO GOOGLE AL IMPLEMENTAR (Termina en /exec)
+const URL_API_GOOGLE = 'https://script.google.com/macros/s/AKfycbxcRbHLpF6M779EsvvEJ1r1wNEZC9k9GBfLbIOpkbbIb69aS-_6gv3FYpbGUEeOkbCl/exec';
+
+// Dejamos esta constante vieja acá arriba por si tu HTML o algún script la requiere, no molesta.
+const URL_API_SHEETDB = 'https://sheetdb.io/api/v1/no_se_usa_pero_queda_guardada';
 
 // =========================================================================
 // 2. MAESTRO DE SECTORES Y ANFITRIONES (COFARMEN)
 // =========================================================================
 const maestroSectores = {
-    "PLANTA LOGISTICA": [
-        { nombre: "MUGNECO ADRIAN", contacto: "5492615320950" }
-    ],
+    "PLANTA LOGISTICA": [{ nombre: "MUGNECO ADRIAN", contacto: "5492615320950" }],
     "CAPITAL HUMANO": [
         { nombre: "Fernández Rubén", contacto: "5492615320950" },
         { nombre: "Pablo Jacuzzi", contacto: "5492615320950" },
-        { nombre: "Tissera Mariana", contacto: "5492615320950" },
+        { nombre: "Yacuzzi Mariana", contacto: "5492615320950" },
+        { nombre: "Tizera", contacto: "5492615320950" }
     ],
     "Administracion": [
         { nombre: "Martin Marcelo", contacto: "5492615320950" },
@@ -26,9 +27,7 @@ const maestroSectores = {
         { nombre: "Agüero Antonio", contacto: "5492615320950" },
         { nombre: "Velez Daniel", contacto: "5492615320950" }
     ],
-    "Consejo": [
-        { nombre: "Ganem Victoria", contacto: "5492615320950" }
-    ],
+    "Consejo": [{ nombre: "Ganem Victoria", contacto: "5492615320950" }],
     "Operador Logistico nave 2": [
         { nombre: "Constantino Adriana", contacto: "5492615320950" },
         { nombre: "Valdez Liliana", contacto: "5492615320950" }
@@ -56,12 +55,8 @@ const maestroSectores = {
         { nombre: "Fernandez Leonardo", contacto: "5492615320950" },
         { nombre: "Marzonetto Emiliano", contacto: "5492615320950" }
     ],
-    "Evento": [
-        { nombre: "Evento", contacto: "5492615320950" }
-    ],
-    "Mostrador": [
-        { nombre: "Atención Mostrador", contacto: "5492615320950" }
-    ],
+    "Evento": [{ nombre: "Evento", contacto: "5492615320950" }],
+    "Mostrador": [{ nombre: "Atención Mostrador", contacto: "5492615320950" }],
     "Recepcion Técnica": [
         { nombre: "Daniel Ríos", contacto: "5492615320950" },
         { nombre: "Cecilia Nadal", contacto: "5492615320950" },
@@ -69,16 +64,12 @@ const maestroSectores = {
         { nombre: "Natalia Bustos", contacto: "5492615320950" },
         { nombre: "Jennifer Agüero", contacto: "5492615320950" }
     ],
-    "Mantenimiento": [
-        { nombre: "Personal de Mantenimiento", contacto: "5492615320950" }
-    ],
-    "EVENTO": [
-        { nombre: "EVENTO", contacto: "N/A" }
-    ]
+    "Mantenimiento": [{ nombre: "Personal de Mantenimiento", contacto: "5492615320950" }],
+    "EVENTO": [{ nombre: "EVENTO", contacto: "N/A" }]
 };
 
 // =========================================================================
-// 3. CAPTURA DE ELEMENTOS DEL DOM (INTERFAZ HTML)
+// 3. CAPTURA DE COMPONENTES DE LA INTERFAZ (DOM)
 // =========================================================================
 const escaneoRawInput = document.getElementById('escaneoRaw');
 const datosPersonalesInput = document.getElementById('datosPersonales');
@@ -92,9 +83,7 @@ const btnLimpiar = document.getElementById('btnLimpiar');
 
 let timeoutAutoGuardar = null;
 
-// =========================================================================
-// 4. CONTROL DE FOCO AUTOMÁTICO PARA LA PISTOLA DE ESCANEO
-// =========================================================================
+// Foco automático para disparar con la pistola de hardware
 document.addEventListener('click', (evento) => {
     const camposPermitidos = ['sector', 'anfitrion', 'observaciones', 'empresa', 'modoEvento'];
     if (camposPermitidos.includes(evento.target.id) || evento.target.tagName === 'OPTION') {
@@ -103,9 +92,7 @@ document.addEventListener('click', (evento) => {
     if (escaneoRawInput) escaneoRawInput.focus();
 });
 
-// =========================================================================
-// 5. LÓGICA DINÁMICA DE SECTORES Y ANFITRIONES
-// =========================================================================
+// Loaders dinámicos de selectores
 function cargarSectores() {
     if (!sectorSelect) return;
     sectorSelect.innerHTML = '<option value="">Seleccione un sector...</option>';
@@ -132,7 +119,6 @@ if (sectorSelect) {
                 option.dataset.contacto = anf.contacto; 
                 anfitrionSelect.appendChild(option);
             });
-            
             if(maestroSectores[sectorSeleccionado].length === 1) {
                 anfitrionSelect.selectedIndex = 1; 
             }
@@ -141,7 +127,7 @@ if (sectorSelect) {
 }
 
 // =========================================================================
-// 6. PROCESAMIENTO Y LIMPIEZA DE DATOS (DNI CON @ / QR)
+// 4. SISTEMA DE LIMPIEZA Y DESARMADO DE DNI (@ / QR)
 // =========================================================================
 if (escaneoRawInput) {
     escaneoRawInput.addEventListener('input', () => {
@@ -150,7 +136,7 @@ if (escaneoRawInput) {
 
         if (timeoutAutoGuardar) clearTimeout(timeoutAutoGuardar);
 
-        // Si detecta arroba, procesa el formato de tarjeta de DNI Argentino
+        // Desarmado de DNI tarjeta de formato argentino
         if (rawText.includes('@')) {
             const partes = rawText.split('@');
             if (partes.length >= 5) {
@@ -161,14 +147,13 @@ if (escaneoRawInput) {
             } else {
                 datosPersonalesInput.value = "FORMATO DNI NO RECONOCIDO";
             }
-            
             if (!modoEventoCheck.checked) {
                 groupEmpresa.style.display = 'flex';
                 empresaInput.value = '';
                 empresaInput.focus();
             }
         } else {
-            // Procesamiento de QR tradicionales separados por guiones
+            // Desarmado de códigos QR con estructura predeterminada
             const partes = rawText.split(' - ');
             if (partes.length >= 3) {
                 datosPersonalesInput.value = partes[0].toUpperCase(); 
@@ -179,7 +164,7 @@ if (escaneoRawInput) {
             }
         }
 
-        // Sistema de auto-guardado automático si está el Modo Evento encendido
+        // Auto-guardado instantáneo en Modo Evento Masivo
         if (modoEventoCheck.checked && datosPersonalesInput.value && !datosPersonalesInput.value.includes("NO RECONOCIDO")) {
             timeoutAutoGuardar = setTimeout(() => {
                 if (btnRegistrar) btnRegistrar.click(); 
@@ -188,9 +173,6 @@ if (escaneoRawInput) {
     });
 }
 
-// =========================================================================
-// 7. CONMUTADOR DE MODO EVENTO MASIVO
-// =========================================================================
 if (modoEventoCheck) {
     modoEventoCheck.addEventListener('change', () => {
         if (modoEventoCheck.checked) {
@@ -209,9 +191,6 @@ if (modoEventoCheck) {
     });
 }
 
-// =========================================================================
-// 8. FUNCIONES DE LIMPIEZA
-// =========================================================================
 function limpiarFormulario() {
     if (escaneoRawInput) escaneoRawInput.value = '';
     if (datosPersonalesInput) datosPersonalesInput.value = '';
@@ -227,49 +206,30 @@ function limpiarFormulario() {
 
 if (btnLimpiar) btnLimpiar.addEventListener('click', limpiarFormulario);
 
-// =========================================================================
-// 9. CONTROL DE ESCANEO DESDE LA CÁMARA (LIBRERÍA QR)
-// =========================================================================
+// Escaneo por medio de la lente de la cámara del celular
 async function iniciarEscaneo() {
-    if (html5QrCode.isScanning) {
-        return;
-    }
+    if (html5QrCode.isScanning) return;
     try {
         await html5QrCode.start(
             { facingMode: "environment" },
             { fps: 10, qrbox: { width: 250, height: 250 } },
             (decodedText) => {
                 if (escaneoRawInput) {
-                    // Cargamos el texto crudo en la caja de control e iniciamos la limpieza nativa
                     escaneoRawInput.value = decodedText;
                     escaneoRawInput.dispatchEvent(new Event('input', { bubbles: true }));
                 }
-                html5QrCode.stop().then(() => {
-                    console.log("Cámara detenida de forma limpia.");
-                });
+                html5QrCode.stop();
             },
-            (errorMessage) => { /* Escaneo en ejecución... */ }
+            (errorMessage) => {}
         );
     } catch (err) {
-        alert("No se pudo iniciar la cámara. Verifica los permisos de la aplicación.");
+        alert("Permisos denegados para usar la cámara.");
     }
 }
 
 // =========================================================================
-// 10. ENVÍO DE DATOS A GOOGLE SHEETS (VÍA SHEETDB - ORDEN ESTRICTO A-G)
+// 5. EVENTO REGISTRAR - ENVÍO SEGURO DIRECTO A GOOGLE SCRIPT (NO-CORS)
 // =========================================================================
-// =========================================================================
-// 10. ENVÍO DIRECTO A TU GOOGLE APPS SCRIPT (SIN INTERMEDIARIOS)
-// =========================================================================
-// REEMPLAZA ESTA URL por el enlace largo de Google que obtenés al implementar (/exec)
-const URL_API_GOOGLE = 'https://script.google.com/macros/s/AKfycbymKocEMwtBZpUIF9nKW47wswir-GL1kOzuWbA3V_rMO6zxIUJQkXbsHhC0WOBZ-9vI/exec';
-
-// =========================================================================
-// 10. ENVÍO DIRECTO A TU GOOGLE APPS SCRIPT (SIN INTERMEDIARIOS)
-// =========================================================================
-// REEMPLAZA ESTA URL por el enlace largo de Google que obtenés al implementar (/exec)
-const URL_API_GOOGLE = 'https://script.google.com/macros/s/TU_ID_DE_APPS_SCRIPT/exec';
-
 if (btnRegistrar) {
     btnRegistrar.addEventListener('click', async () => {
         if (!datosPersonalesInput.value || !sectorSelect.value || !anfitrionSelect.value) {
@@ -282,8 +242,8 @@ if (btnRegistrar) {
         const obsElement = document.getElementById('observaciones');
         const observacionesTexto = obsElement && obsElement.value ? obsElement.value.toUpperCase() : 'SIN OBSERVACIONES';
         
-        // Armamos el objeto exactamente con las variables en minúscula que tu Apps Script procesa
-        const payload = {
+        // Empaquetamos en minúsculas tal cual lo requiere tu script del Excel
+        const datosObj = {
             "datosPersonales": datosPersonalesInput.value.toUpperCase(),
             "empresa": (empresaInput.value || "VISITA").toUpperCase(),
             "sector": sectorSelect.value.toUpperCase(),
@@ -293,19 +253,18 @@ if (btnRegistrar) {
         };
 
         try {
-            // Usamos 'no-cors' para que el APK en el celular y GitHub Pages no reboten la petición
+            // Enviamos como text/plain con mode: no-cors para saltar bloqueos de red
             await fetch(URL_API_GOOGLE, {
                 method: 'POST',
-                mode: 'no-cors', 
+                mode: 'no-cors',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'text/plain'
                 },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(datosObj)
             });
 
-            // Con no-cors el navegador no nos deja leer la respuesta por seguridad,
-            // pero si no salta al catch, el paquete ya entró a Google y se ejecutó tu script.
-            alert("✅ Registro enviado a la hoja de cálculo.");
+            // Al no saltar al catch, el registro fue insertado con éxito en tu Google Sheets
+            alert("✅ Registro enviado a la hoja de cálculo con éxito.");
 
             // --- DISPARO AUTOMÁTICO DE WHATSAPP ---
             const mensajeWP = `Nuevo ingreso Visita: ${datosPersonalesInput.value} | Empresa: ${empresaInput.value || "VISITA"} | Sector: ${sectorSelect.value} -> Anfitrión: ${anfitrionSelect.value}`;
@@ -314,13 +273,12 @@ if (btnRegistrar) {
             limpiarFormulario();
 
         } catch (error) {
-            console.error("Error de conexión:", error);
-            alert("❌ Error de red. No se pudo enviar el registro.");
+            console.error("Error crítico de red:", error);
+            alert("❌ Error de red. No se pudo conectar con la base de datos de Google.");
         }
     });
 }
 
-// Inicialización de la carga al renderizar el DOM
 document.addEventListener('DOMContentLoaded', () => {
     cargarSectores();
     if (escaneoRawInput) escaneoRawInput.focus();
