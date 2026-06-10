@@ -4,7 +4,7 @@
 const html5QrCode = new Html5Qrcode("reader");
 
 // PEGÁ ACÁ EL ENLACE LARGO QUE TE DIO GOOGLE AL IMPLEMENTAR (Termina en /exec)
-const URL_API_GOOGLE = 'https://script.google.com/macros/s/AKfycbxcRbHLpF6M779EsvvEJ1r1wNEZC9k9GBfLbIOpkbbIb69aS-_6gv3FYpbGUEeOkbCl/exec';
+const URL_API_GOOGLE = 'https://script.google.com/macros/s/AKfycbyD2o3LopK1cnajh8GrPow-HwJA2H5VUqYBdJhBNr8zCKX5OfygpEldAeAL5sOPmVc7/exec';
 
 // Dejamos esta constante vieja acá arriba por si tu HTML o algún script la requiere, no molesta.
 const URL_API_SHEETDB = 'https://sheetdb.io/api/v1/no_se_usa_pero_queda_guardada';
