@@ -291,9 +291,7 @@ if (btnRegistrar) {
             // Al no saltar al catch, el registro fue insertado con éxito en tu Google Sheets
             alert("✅ Registro enviado a la hoja de cálculo con éxito.");
 
-            // --- DISPARO AUTOMÁTICO DE WHATSAPP ---
-            const mensajeWP = `Nuevo ingreso Visita: ${datosPersonalesInput.value} | Empresa: ${empresaInput.value || "VISITA"} | Sector: ${sectorSelect.value} -> Anfitrión: ${anfitrionSelect.value}`;
-            window.open(`https://wa.me/${nroContacto}?text=${encodeURIComponent(mensajeWP)}`, '_blank');
+          
 
             limpiarFormulario();
 
