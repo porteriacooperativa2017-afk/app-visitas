@@ -1,8 +1,14 @@
-// --- CONFIGURACIÓN INICIAL Y CONEXIÓN ---
-const html5QrCode = new Html5Qrcode("reader");
-// REEMPLAZA ESTA URL por la que te dé SheetDB al vincular tu nueva planilla de visitas
-const URL_API_SHEETDB = 'https://sheetdb.io/api/v1/0r37mye22zrgm';
 
+// =========================================================================
+// 1. CONFIGURACIÓN INICIAL Y CONEXIÓN A LA API
+// =========================================================================
+const html5QrCode = new Html5Qrcode("reader");
+// REEMPLAZA ESTA URL por la que te dé SheetDB al vincular tu planilla de visitas
+const URL_API_SHEETDB = 'https://sheetdb.io/api/v1/tu_codigo_api_aqui';
+
+// =========================================================================
+// 2. MAESTRO DE SECTORES Y ANFITRIONES (COFARMEN)
+// =========================================================================
 const maestroSectores = {
     "PLANTA LOGISTICA": [
         { nombre: "MUGNECO ADRIAN", contacto: "5492615320950" }
@@ -71,7 +77,9 @@ const maestroSectores = {
     ]
 };
 
-// --- CAPTURA DE ELEMENTOS DEL DOM ---
+// =========================================================================
+// 3. CAPTURA DE ELEMENTOS DEL DOM (INTERFAZ HTML)
+// =========================================================================
 const escaneoRawInput = document.getElementById('escaneoRaw');
 const datosPersonalesInput = document.getElementById('datosPersonales');
 const empresaInput = document.getElementById('empresa');
@@ -84,7 +92,9 @@ const btnLimpiar = document.getElementById('btnLimpiar');
 
 let timeoutAutoGuardar = null;
 
-// --- CONTROL DE FOCO AUTOMÁTICO ---
+// =========================================================================
+// 4. CONTROL DE FOCO AUTOMÁTICO PARA LA PISTOLA DE ESCANEO
+// =========================================================================
 document.addEventListener('click', (evento) => {
     const camposPermitidos = ['sector', 'anfitrion', 'observaciones', 'empresa', 'modoEvento'];
     if (camposPermitidos.includes(evento.target.id) || evento.target.tagName === 'OPTION') {
@@ -93,7 +103,9 @@ document.addEventListener('click', (evento) => {
     if (escaneoRawInput) escaneoRawInput.focus();
 });
 
-// --- CARGAR SECTORES DINÁMICAMENTE ---
+// =========================================================================
+// 5. LÓGICA DINÁMICA DE SECTORES Y ANFITRIONES
+// =========================================================================
 function cargarSectores() {
     if (!sectorSelect) return;
     sectorSelect.innerHTML = '<option value="">Seleccione un sector...</option>';
@@ -107,7 +119,6 @@ function cargarSectores() {
     });
 }
 
-// --- FILTRAR ANFITRIONES POR SECTOR ---
 if (sectorSelect) {
     sectorSelect.addEventListener('change', (e) => {
         const sectorSeleccionado = e.target.value;
@@ -129,7 +140,9 @@ if (sectorSelect) {
     });
 }
 
-// --- PROCESAMIENTO EN TIEMPO REAL DEL ESCÁNER MANUAL / PISTOLA ---
+// =========================================================================
+// 6. PROCESAMIENTO Y LIMPIEZA DE DATOS (DNI CON @ / QR)
+// =========================================================================
 if (escaneoRawInput) {
     escaneoRawInput.addEventListener('input', () => {
         const rawText = escaneoRawInput.value.trim();
@@ -137,15 +150,16 @@ if (escaneoRawInput) {
 
         if (timeoutAutoGuardar) clearTimeout(timeoutAutoGuardar);
 
+        // Si detecta arroba, procesa el formato de tarjeta de DNI Argentino
         if (rawText.includes('@')) {
             const partes = rawText.split('@');
             if (partes.length >= 5) {
                 const apellido = partes[1].toUpperCase();
-                const nombre = partes[2];
+                const nombre = partes[2].toUpperCase();
                 const dni = partes[4];
                 datosPersonalesInput.value = `${apellido}, ${nombre} - DNI: ${dni}`;
             } else {
-                datosPersonalesInput.value = "Formato DNI no reconocido";
+                datosPersonalesInput.value = "FORMATO DNI NO RECONOCIDO";
             }
             
             if (!modoEventoCheck.checked) {
@@ -154,26 +168,29 @@ if (escaneoRawInput) {
                 empresaInput.focus();
             }
         } else {
+            // Procesamiento de QR tradicionales separados por guiones
             const partes = rawText.split(' - ');
             if (partes.length >= 3) {
-                datosPersonalesInput.value = partes[0]; 
-                empresaInput.value = partes[2];         
+                datosPersonalesInput.value = partes[0].toUpperCase(); 
+                empresaInput.value = partes[2].toUpperCase();         
                 groupEmpresa.style.display = 'none';    
             } else {
-                datosPersonalesInput.value = rawText; 
+                datosPersonalesInput.value = rawText.toUpperCase(); 
             }
         }
 
-        // Auto-guardado instantáneo en Modo Evento Masivo
-        if (modoEventoCheck.checked && datosPersonalesInput.value && !datosPersonalesInput.value.includes("no reconocido")) {
+        // Sistema de auto-guardado automático si está el Modo Evento encendido
+        if (modoEventoCheck.checked && datosPersonalesInput.value && !datosPersonalesInput.value.includes("NO RECONOCIDO")) {
             timeoutAutoGuardar = setTimeout(() => {
-                btnRegistrar.click(); 
+                if (btnRegistrar) btnRegistrar.click(); 
             }, 200); 
         }
     });
 }
 
-// --- CONMUTADOR DE MODO EVENTO ---
+// =========================================================================
+// 7. CONMUTADOR DE MODO EVENTO MASIVO
+// =========================================================================
 if (modoEventoCheck) {
     modoEventoCheck.addEventListener('change', () => {
         if (modoEventoCheck.checked) {
@@ -188,11 +205,13 @@ if (modoEventoCheck) {
             groupEmpresa.style.display = 'flex';
             limpiarFormulario();
         }
-        escaneoRawInput.focus();
+        if (escaneoRawInput) escaneoRawInput.focus();
     });
 }
 
-// --- FUNCIÓN DE LIMPIEZA DE FORMULARIO ---
+// =========================================================================
+// 8. FUNCIONES DE LIMPIEZA
+// =========================================================================
 function limpiarFormulario() {
     if (escaneoRawInput) escaneoRawInput.value = '';
     if (datosPersonalesInput) datosPersonalesInput.value = '';
@@ -201,13 +220,16 @@ function limpiarFormulario() {
         if (sectorSelect) sectorSelect.value = '';
         if (anfitrionSelect) anfitrionSelect.innerHTML = '<option value="">Seleccione anfitrión...</option>';
     }
-    document.getElementById('observaciones').value = '';
+    const obsField = document.getElementById('observaciones');
+    if (obsField) obsField.value = '';
     if (escaneoRawInput) escaneoRawInput.focus();
 }
 
 if (btnLimpiar) btnLimpiar.addEventListener('click', limpiarFormulario);
 
-// --- FUNCIÓN DE ESCANEO DESDE LA CÁMARA (Librería QR) ---
+// =========================================================================
+// 9. CONTROL DE ESCANEO DESDE LA CÁMARA (LIBRERÍA QR)
+// =========================================================================
 async function iniciarEscaneo() {
     if (html5QrCode.isScanning) {
         return;
@@ -217,50 +239,54 @@ async function iniciarEscaneo() {
             { facingMode: "environment" },
             { fps: 10, qrbox: { width: 250, height: 250 } },
             (decodedText) => {
-                if (datosPersonalesInput) {
-                    datosPersonalesInput.value = decodedText;
-                    datosPersonalesInput.dispatchEvent(new Event('input', { bubbles: true }));
+                if (escaneoRawInput) {
+                    // Cargamos el texto crudo en la caja de control e iniciamos la limpieza nativa
+                    escaneoRawInput.value = decodedText;
+                    escaneoRawInput.dispatchEvent(new Event('input', { bubbles: true }));
                 }
                 html5QrCode.stop().then(() => {
-                    console.log("Escaneo de cámara finalizado");
+                    console.log("Cámara detenida de forma limpia.");
                 });
             },
-            (errorMessage) => { /* Silenciar logs de búsqueda */ }
+            (errorMessage) => { /* Escaneo en ejecución... */ }
         );
     } catch (err) {
-        alert("Error al acceder a la cámara. Revisa los permisos.");
+        alert("No se pudo iniciar la cámara. Verifica los permisos de la aplicación.");
     }
 }
 
-// --- ACCIÓN DEL BOTÓN REGISTRAR (ESTRUCTURA DE COLUMNAS DE LA A A LA G) ---
-// --- ACCIÓN DEL BOTÓN REGISTRAR (ESTRUCTURA CORREGIDA EN MAYÚSCULAS) ---
+// =========================================================================
+// 10. ENVÍO DE DATOS A GOOGLE SHEETS (VÍA SHEETDB - ORDEN ESTRICTO A-G)
+// =========================================================================
 if (btnRegistrar) {
     btnRegistrar.addEventListener('click', async () => {
         if (!datosPersonalesInput.value || !sectorSelect.value || !anfitrionSelect.value) {
-            alert('Por favor, complete todos los campos obligatorios antes de registrar.');
+            alert('Por favor, complete los campos obligatorios antes de registrar.');
             return;
         }
 
         const selectedOption = anfitrionSelect.options[anfitrionSelect.selectedIndex];
         const nroContacto = selectedOption ? selectedOption.dataset.contacto : '5492615320950';
-        const observacionesTexto = document.getElementById('observaciones').value || 'SIN OBSERVACIONES';
+        const obsElement = document.getElementById('observaciones');
+        const observacionesTexto = obsElement && obsElement.value ? obsElement.value.toUpperCase() : 'SIN OBSERVACIONES';
         
-        // Estructura melliza a tu Excel: MAYÚSCULAS, espacios y orden de la A a la G
+        // ESTRUCTURA EXACTA DE TU EXCEL: MAYÚSCULAS PURAS Y ORDEN DE COLUMNAS DE LA A A LA G
         const payload = {
             "data": [
                 {
-                    "FECHA Y HORA": new Date().toLocaleString("es-AR"),        // Columna A
-                    "DATOS PERSONALES": datosPersonalesInput.value.toUpperCase(), // Columna B
+                    "FECHA Y HORA": new Date().toLocaleString("es-AR"),              // Columna A
+                    "DATOS PERSONALES": datosPersonalesInput.value.toUpperCase(),       // Columna B
                     "EMPRESA O FARMACIA": (empresaInput.value || "VISITA").toUpperCase(), // Columna C
-                    "SECTOR A VISITAR": sectorSelect.value.toUpperCase(),       // Columna D
-                    "ANFITRION": anfitrionSelect.value.toUpperCase(),           // Columna E
-                    "OBSERVACIONES": observacionesTexto.toUpperCase(),          // Columna F
-                    "TIPO DE VISITA": modoEventoCheck.checked ? "SÍ" : "NO"     // Columna G
+                    "SECTOR A VISITAR": sectorSelect.value.toUpperCase(),             // Columna D
+                    "ANFITRION": anfitrionSelect.value.toUpperCase(),                 // Columna E
+                    "OBSERVACIONES": observacionesTexto,                             // Columna F
+                    "TIPO DE VISITA": modoEventoCheck.checked ? "SÍ" : "NO"           // Columna G
                 }
             ]
         };
 
         try {
+            // El fetch directo a la API de SheetDB (Soporte CORS nativo para APK)
             const response = await fetch(URL_API_SHEETDB, {
                 method: 'POST',
                 headers: {
@@ -271,27 +297,24 @@ if (btnRegistrar) {
             });
 
             if (response.ok) {
-                alert("✅ Registro sincronizado en la hoja de cálculo con éxito.");
+                alert("✅ Sincronizado en la hoja de cálculo con éxito.");
 
-                // --- MENSAJE AUTOMÁTICO DE WHATSAPP ---
-                const mensajeWP = `Nuevo ingreso Visita: ${datosPersonalesInput.value} | Empresa: ${empresaInput.value || "VISITA"} | Destino: ${sectorSelect.value} - Anfitrión: ${anfitrionSelect.value}`;
-                
+                // --- DISPARO AUTOMÁTICO DE WHATSAPP ---
+                const mensajeWP = `Nuevo ingreso Visita: ${datosPersonalesInput.value} | Empresa: ${empresaInput.value || "VISITA"} | Sector: ${sectorSelect.value} -> Anfitrión: ${anfitrionSelect.value}`;
                 window.open(`https://wa.me/${nroContacto}?text=${encodeURIComponent(mensajeWP)}`, '_blank');
 
                 limpiarFormulario();
             } else {
-                alert("❌ El servidor de SheetDB rechazó los datos. Verifica que la fila 1 de tu Excel esté en MAYÚSCULAS.");
+                alert("❌ SheetDB rechazó los datos. Verifica que la FILA 1 de tu Excel tenga las columnas en MAYÚSCULAS.");
             }
         } catch (error) {
-            console.error("Error de red:", error);
-            alert("❌ Error de comunicación. La aplicación no pudo enviar el registro.");
+            console.error("Error de conexión:", error);
+            alert("❌ Error de red. No se pudo conectar con la base de datos.");
         }
     });
 }
-}      if (!datosPersonalesInput.value || !sectorSelect.value || !anfitrionSelect.value) {
-      
 
-// Inicializar componentes al cargar la página
+// Inicialización de la carga al renderizar el DOM
 document.addEventListener('DOMContentLoaded', () => {
     cargarSectores();
     if (escaneoRawInput) escaneoRawInput.focus();
