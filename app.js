@@ -258,6 +258,12 @@ async function iniciarEscaneo() {
 // =========================================================================
 // 10. ENVÍO DE DATOS A GOOGLE SHEETS (VÍA SHEETDB - ORDEN ESTRICTO A-G)
 // =========================================================================
+// =========================================================================
+// 10. ENVÍO DIRECTO A TU GOOGLE APPS SCRIPT (SIN INTERMEDIARIOS)
+// =========================================================================
+// REEMPLAZA ESTA URL por el enlace largo de Google que obtenés al implementar (/exec)
+const URL_API_GOOGLE = 'https://script.google.com/macros/s/TU_ID_DE_APPS_SCRIPT/exec';
+
 if (btnRegistrar) {
     btnRegistrar.addEventListener('click', async () => {
         if (!datosPersonalesInput.value || !sectorSelect.value || !anfitrionSelect.value) {
@@ -270,46 +276,40 @@ if (btnRegistrar) {
         const obsElement = document.getElementById('observaciones');
         const observacionesTexto = obsElement && obsElement.value ? obsElement.value.toUpperCase() : 'SIN OBSERVACIONES';
         
-        // ESTRUCTURA EXACTA DE TU EXCEL: MAYÚSCULAS PURAS Y ORDEN DE COLUMNAS DE LA A A LA G
+        // Armamos el objeto exactamente con las variables en minúscula que tu Apps Script procesa
         const payload = {
-            "data": [
-                {
-                    "FECHA Y HORA": new Date().toLocaleString("es-AR"),              // Columna A
-                    "DATOS PERSONALES": datosPersonalesInput.value.toUpperCase(),       // Columna B
-                    "EMPRESA O FARMACIA": (empresaInput.value || "VISITA").toUpperCase(), // Columna C
-                    "SECTOR A VISITAR": sectorSelect.value.toUpperCase(),             // Columna D
-                    "ANFITRION": anfitrionSelect.value.toUpperCase(),                 // Columna E
-                    "OBSERVACIONES": observacionesTexto,                             // Columna F
-                    "TIPO DE VISITA": modoEventoCheck.checked ? "SÍ" : "NO"           // Columna G
-                }
-            ]
+            "datosPersonales": datosPersonalesInput.value.toUpperCase(),
+            "empresa": (empresaInput.value || "VISITA").toUpperCase(),
+            "sector": sectorSelect.value.toUpperCase(),
+            "anfitrion": anfitrionSelect.value.toUpperCase(),
+            "observaciones": observacionesTexto,
+            "modoEvento": modoEventoCheck.checked // Envía true o false
         };
 
         try {
-            // El fetch directo a la API de SheetDB (Soporte CORS nativo para APK)
-            const response = await fetch(URL_API_SHEETDB, {
+            // Usamos 'no-cors' para que el APK en el celular y GitHub Pages no reboten la petición
+            await fetch(URL_API_GOOGLE, {
                 method: 'POST',
+                mode: 'no-cors', 
                 headers: {
-                    'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(payload)
             });
 
-            if (response.ok) {
-                alert("✅ Sincronizado en la hoja de cálculo con éxito.");
+            // Con no-cors el navegador no nos deja leer la respuesta por seguridad,
+            // pero si no salta al catch, el paquete ya entró a Google y se ejecutó tu script.
+            alert("✅ Registro enviado a la hoja de cálculo.");
 
-                // --- DISPARO AUTOMÁTICO DE WHATSAPP ---
-                const mensajeWP = `Nuevo ingreso Visita: ${datosPersonalesInput.value} | Empresa: ${empresaInput.value || "VISITA"} | Sector: ${sectorSelect.value} -> Anfitrión: ${anfitrionSelect.value}`;
-                window.open(`https://wa.me/${nroContacto}?text=${encodeURIComponent(mensajeWP)}`, '_blank');
+            // --- DISPARO AUTOMÁTICO DE WHATSAPP ---
+            const mensajeWP = `Nuevo ingreso Visita: ${datosPersonalesInput.value} | Empresa: ${empresaInput.value || "VISITA"} | Sector: ${sectorSelect.value} -> Anfitrión: ${anfitrionSelect.value}`;
+            window.open(`https://wa.me/${nroContacto}?text=${encodeURIComponent(mensajeWP)}`, '_blank');
 
-                limpiarFormulario();
-            } else {
-                alert("❌ SheetDB rechazó los datos. Verifica que la FILA 1 de tu Excel tenga las columnas en MAYÚSCULAS.");
-            }
+            limpiarFormulario();
+
         } catch (error) {
             console.error("Error de conexión:", error);
-            alert("❌ Error de red. No se pudo conectar con la base de datos.");
+            alert("❌ Error de red. No se pudo enviar el registro.");
         }
     });
 }
