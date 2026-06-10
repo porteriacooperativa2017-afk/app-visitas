@@ -1,7 +1,9 @@
-// Tabla Maestro de Sectores y Anfitriones de Cofarmen
-var html5QrCode = null;
-var urlBase = 'https://sheetdb.io/api/v1/0r37mye22zrgm';
+// --- CONFIGURACIÓN INICIAL Y CONEXIÓN ---
+const html5QrCode = new Html5Qrcode("reader");
+// REEMPLAZA ESTA URL por la que te dé SheetDB al vincular tu nueva planilla de visitas
+const URL_API_SHEETDB = 'https://sheetdb.io/api/v1/0r37mye22zrgm';
 
+// --- MAESTRO DE SECTORES Y ANFITRIONES DE COFARMEN ---
 const maestroSectores = {
     "PLANTA LOGISTICA": [
         { nombre: "MUGNECO ADRIAN", contacto: "5492615320950" }
@@ -24,11 +26,7 @@ const maestroSectores = {
     ],
     "Operador Logistico nave 2": [
         { nombre: "Constantino Adriana", contacto: "5492615320950" },
-        { nombre: "Valdez Liliana", contacto: "5492615320950" },
-        
-    ],
-    "Consejo": [
-        { nombre: "Ganem Victoria", contacto: "5492615320950" }
+        { nombre: "Valdez Liliana", contacto: "5492615320950" }
     ],
     "Comercial": [
         { nombre: "Molina Andres", contacto: "5492615320950" },
@@ -44,9 +42,7 @@ const maestroSectores = {
         { nombre: "Garay Diego", contacto: "5492615320950" },
         { nombre: "Fernandez Jose Luis", contacto: "5492615320950" },
         { nombre: "Dominguez Diego", contacto: "5492615320950" },
-        { nombre: "Peroso Vanesa", contacto: "5492615320950" },
-
-
+        { nombre: "Peroso Vanesa", contacto: "5492615320950" }
     ],
     "Recepción": [
         { nombre: "Paris Sebastian", contacto: "5492615320950" },
@@ -75,48 +71,8 @@ const maestroSectores = {
         { nombre: "EVENTO", contacto: "N/A" }
     ]
 };
-async function iniciarEscaneo() {
-    // Si ya hay una instancia, la detenemos antes de iniciar
-    if (html5QrCode.isScanning) {
-        return;
-    }
 
-    try {
-        await html5QrCode.start(
-            { facingMode: "environment" },
-            { fps: 10, qrbox: { width: 250, height: 250 } },
-            (decodedText) => {
-                // 1. EL CAMPO: Asegurate que 'datosPersonales' sea el ID correcto que tienes en tu HTML
-                const inputField = document.getElementById('datosPersonales');
-                
-                if (inputField) {
-                    // 2. Insertamos el valor
-                    inputField.value = decodedText;
-
-                    // 3. DISPARAMOS LOS EVENTOS (Esto engaña al formulario para que "sienta" que escribiste)
-                    inputField.dispatchEvent(new Event('input', { bubbles: true }));
-                    inputField.dispatchEvent(new Event('change', { bubbles: true }));
-                    
-                    // 4. Simulamos el Enter por si acaso
-                    inputField.dispatchEvent(new KeyboardEvent('keydown', {
-                        key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true
-                    }));
-                }
-
-                // 5. DETENEMOS EL ESCÁNER
-                html5QrCode.stop().then(() => {
-                    console.log("Escaneo finalizado");
-                });
-            },
-            (errorMessage) => {
-                // Esto es normal, son errores de búsqueda mientras no encuentra QR
-            }
-        );
-    } catch (err) {
-        alert("Error al acceder a la cámara. Revisa los permisos.");
-    }
-}
-// Captura de Elementos del DOM
+// --- CAPTURA DE ELEMENTOS DEL DOM ---
 const escaneoRawInput = document.getElementById('escaneoRaw');
 const datosPersonalesInput = document.getElementById('datosPersonales');
 const empresaInput = document.getElementById('empresa');
@@ -126,20 +82,22 @@ const modoEventoCheck = document.getElementById('modoEvento');
 const groupEmpresa = document.getElementById('groupEmpresa');
 const btnRegistrar = document.getElementById('btnRegistrar');
 const btnLimpiar = document.getElementById('btnLimpiar');
+const btnWhatsApp = document.getElementById('btnWhatsApp');
 
 let timeoutAutoGuardar = null;
 
-// CONTROL DE FOCO: No interrumpe la escritura manual
+// --- CONTROL DE FOCO AUTOMÁTICO ---
 document.addEventListener('click', (evento) => {
     const camposPermitidos = ['sector', 'anfitrion', 'observaciones', 'empresa', 'modoEvento'];
     if (camposPermitidos.includes(evento.target.id) || evento.target.tagName === 'OPTION') {
         return; 
     }
-    escaneoRawInput.focus();
+    if (escaneoRawInput) escaneoRawInput.focus();
 });
 
-// Cargar sectores dinámicamente
+// --- CARGAR SECTORES DINÁMICAMENTE ---
 function cargarSectores() {
+    if (!sectorSelect) return;
     sectorSelect.innerHTML = '<option value="">Seleccione un sector...</option>';
     Object.keys(maestroSectores).forEach(sector => {
         if(sector !== "EVENTO" || modoEventoCheck.checked) {
@@ -151,151 +109,197 @@ function cargarSectores() {
     });
 }
 
-// Filtrar anfitriones por sector
-sectorSelect.addEventListener('change', (e) => {
-    const sectorSeleccionado = e.target.value;
-    anfitrionSelect.innerHTML = '<option value="">Seleccione anfitrión...</option>';
-    
-    if (sectorSeleccionado && maestroSectores[sectorSeleccionado]) {
-        maestroSectores[sectorSeleccionado].forEach(anf => {
-            let option = document.createElement('option');
-            option.value = anf.nombre;
-            option.textContent = anf.nombre;
-            option.dataset.contacto = anf.contacto; 
-            anfitrionSelect.appendChild(option);
-        });
-        
-        if(maestroSectores[sectorSeleccionado].length === 1) {
-            anfitrionSelect.selectedIndex = 1; 
-        }
-    }
-});
-
-// Procesamiento en tiempo real del escáner
-escaneoRawInput.addEventListener('input', () => {
-    const rawText = escaneoRawInput.value.trim();
-    if (!rawText) return;
-
-    if (timeoutAutoGuardar) clearTimeout(timeoutAutoGuardar);
-
-    if (rawText.includes('@')) {
-        const partes = rawText.split('@');
-        if (partes.length >= 5) {
-            const apellido = partes[1].toUpperCase();
-            const nombre = partes[2];
-            const dni = partes[4];
-            datosPersonalesInput.value = `${apellido}, ${nombre} - DNI: ${dni}`;
-        } else {
-            datosPersonalesInput.value = "Formato DNI no reconocido";
-        }
-        
-        if (!modoEventoCheck.checked) {
-            groupEmpresa.style.display = 'flex';
-            empresaInput.value = '';
-            empresaInput.focus();
-        }
-    } else {
-        const partes = rawText.split(' - ');
-        if (partes.length >= 3) {
-            datosPersonalesInput.value = partes[0]; 
-            empresaInput.value = partes[2];         
-            groupEmpresa.style.display = 'none';    
-        } else {
-            datosPersonalesInput.value = rawText; 
-        }
-    }
-
-    // Auto-guardado instantáneo si es Modo Evento Masivo
-    if (modoEventoCheck.checked && datosPersonalesInput.value && !datosPersonalesInput.value.includes("no reconocido")) {
-        timeoutAutoGuardar = setTimeout(() => {
-            btnRegistrar.click(); 
-        }, 200); 
-    }
-});
-
-// Conmutador de Modo Evento
-modoEventoCheck.addEventListener('change', () => {
-    if (modoEventoCheck.checked) {
-        document.body.style.setProperty('--accent-blue', 'var(--accent-event)');
-        groupEmpresa.style.display = 'none';
-        empresaInput.value = "EVENTO";
-        cargarSectores();
-        sectorSelect.value = "EVENTO";
-        sectorSelect.dispatchEvent(new Event('change')); 
-    } else {
-        document.body.style.setProperty('--accent-blue', '#0052cc');
-        groupEmpresa.style.display = 'flex';
-        limpiarFormulario();
-    }
-    escaneoRawInput.focus();
-});
-
-function limpiarFormulario() {
-    escaneoRawInput.value = '';
-    datosPersonalesInput.value = '';
-    if (!modoEventoCheck.checked) {
-        empresaInput.value = '';
-        sectorSelect.value = '';
+// --- FILTRAR ANFITRIONES POR SECTOR ---
+if (sectorSelect) {
+    sectorSelect.addEventListener('change', (e) => {
+        const sectorSeleccionado = e.target.value;
         anfitrionSelect.innerHTML = '<option value="">Seleccione anfitrión...</option>';
-    }
-    document.getElementById('observaciones').value = '';
-    escaneoRawInput.focus();
+        
+        if (sectorSeleccionado && maestroSectores[sectorSeleccionado]) {
+            maestroSectores[sectorSeleccionado].forEach(anf => {
+                let option = document.createElement('option');
+                option.value = anf.nombre;
+                option.textContent = anf.nombre;
+                option.dataset.contacto = anf.contacto; 
+                anfitrionSelect.appendChild(option);
+            });
+            
+            if(maestroSectores[sectorSeleccionado].length === 1) {
+                anfitrionSelect.selectedIndex = 1; 
+            }
+        }
+    });
 }
 
-btnLimpiar.addEventListener('click', limpiarFormulario);
+// --- PROCESAMIENTO EN TIEMPO REAL DEL ESCÁNER MANUAL / PISTOLA ---
+if (escaneoRawInput) {
+    escaneoRawInput.addEventListener('input', () => {
+        const rawText = escaneoRawInput.value.trim();
+        if (!rawText) return;
 
-// Acción del Botón Registrar e Interconexión con Node y WhatsApp Web
-btnRegistrar.addEventListener('click', () => {
-    if (!datosPersonalesInput.value || !sectorSelect.value || !anfitrionSelect.value) {
-        alert('Por favor, complete todos los campos obligatorios antes de registrar.');
+        if (timeoutAutoGuardar) clearTimeout(timeoutAutoGuardar);
+
+        if (rawText.includes('@')) {
+            const partes = rawText.split('@');
+            if (partes.length >= 5) {
+                const apellido = partes[1].toUpperCase();
+                const nombre = partes[2];
+                const dni = partes[4];
+                datosPersonalesInput.value = `${apellido}, ${nombre} - DNI: ${dni}`;
+            } else {
+                datosPersonalesInput.value = "Formato DNI no reconocido";
+            }
+            
+            if (!modoEventoCheck.checked) {
+                groupEmpresa.style.display = 'flex';
+                empresaInput.value = '';
+                empresaInput.focus();
+            }
+        } else {
+            const partes = rawText.split(' - ');
+            if (partes.length >= 3) {
+                datosPersonalesInput.value = partes[0]; 
+                empresaInput.value = partes[2];         
+                groupEmpresa.style.display = 'none';    
+            } else {
+                datosPersonalesInput.value = rawText; 
+            }
+        }
+
+        // Auto-guardado instantáneo en Modo Evento Masivo
+        if (modoEventoCheck.checked && datosPersonalesInput.value && !datosPersonalesInput.value.includes("no reconocido")) {
+            timeoutAutoGuardar = setTimeout(() => {
+                btnRegistrar.click(); 
+            }, 200); 
+        }
+    });
+}
+
+// --- CONMUTADOR DE MODO EVENTO ---
+if (modoEventoCheck) {
+    modoEventoCheck.addEventListener('change', () => {
+        if (modoEventoCheck.checked) {
+            document.body.style.setProperty('--accent-blue', 'var(--accent-event)');
+            groupEmpresa.style.display = 'none';
+            empresaInput.value = "EVENTO";
+            cargarSectores();
+            sectorSelect.value = "EVENTO";
+            sectorSelect.dispatchEvent(new Event('change')); 
+        } else {
+            document.body.style.setProperty('--accent-blue', '#0052cc');
+            groupEmpresa.style.display = 'flex';
+            limpiarFormulario();
+        }
+        escaneoRawInput.focus();
+    });
+}
+
+// --- FUNCIÓN DE LIMPIEZA DE FORMULARIO ---
+function limpiarFormulario() {
+    if (escaneoRawInput) escaneoRawInput.value = '';
+    if (datosPersonalesInput) datosPersonalesInput.value = '';
+    if (!modoEventoCheck.checked) {
+        if (empresaInput) empresaInput.value = '';
+        if (sectorSelect) sectorSelect.value = '';
+        if (anfitrionSelect) anfitrionSelect.innerHTML = '<option value="">Seleccione anfitrión...</option>';
+    }
+    document.getElementById('observaciones').value = '';
+    if (escaneoRawInput) escaneoRawInput.focus();
+}
+
+if (btnLimpiar) btnLimpiar.addEventListener('click', limpiarFormulario);
+
+// --- FUNCIÓN DE ESCANEO DESDE LA CÁMARA (Librería QR) ---
+async function iniciarEscaneo() {
+    if (html5QrCode.isScanning) {
         return;
     }
+    try {
+        await html5QrCode.start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            (decodedText) => {
+                if (datosPersonalesInput) {
+                    datosPersonalesInput.value = decodedText;
+                    // Forzamos los eventos para que se procese como una entrada
+                    datosPersonalesInput.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+                html5QrCode.stop().then(() => {
+                    console.log("Escaneo de cámara finalizado");
+                });
+            },
+            (errorMessage) => { /* Silenciar logs de búsqueda continua */ }
+        );
+    } catch (err) {
+        alert("Error al acceder a la cámara. Revisa los permisos.");
+    }
+}
 
-    const selectedOption = anfitrionSelect.options[anfitrionSelect.selectedIndex];
-    const nroContacto = selectedOption ? selectedOption.dataset.contacto : '';
-    const observacionesTexto = document.getElementById('observaciones').value || 'Sin observaciones.';
-    
-    const payload = {
-        modoEvento: modoEventoCheck.checked ? "SÍ" : "NO",
-        tipoIngreso: escaneoRawInput.value.includes('@') ? "DNI" : "QR",
-        escaneoRaw: escaneoRawInput.value,
-        datosPersonales: datosPersonalesInput.value,
-        empresa: empresaInput.value,
-        sector: sectorSelect.value,
-        anfitrion: anfitrionSelect.value,
-        contactoAviso: nroContacto,
-        observaciones: observacionesTexto,
-        fechaHora: new Date().toLocaleString("es-AR")
-    };
-
-    // 1. Enviamos el registro en segundo plano a Node.js -> Google Sheets
-    fetch('https://script.google.com/macros/s/AKfycbwUp43bKrKpBkRzDkWsfKhdUE5zccWl8AZFumvwv71oDvdbfIeJq4U10y99udtsISeN/exec', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log("Guardado en base de datos:", data);
-        
-        // 2. DISPARO DE WHATSAPP GRATUITO (Solo en Modo Normal)
-        if (!modoEventoCheck.checked && nroContacto && nroContacto !== "N/A") {
-            // Estructuramos el texto con negritas para WhatsApp
-            const textoMensaje = `📢 *Aviso de Ingreso - QR-U*\n\nHola *${payload.anfitrion}*,\nte informamos que se encuentra en guardia:\n\n👤 *Visita:* ${payload.datosPersonales}\n🏢 *Empresa:* ${payload.empresa}\n📍 *Sector:* ${payload.sector}\n📝 *Obs:* ${payload.observaciones}\n🕒 *Hora:* ${payload.fechaHora}`;
-            
-            // Creamos el enlace oficial codificado para que no falle por espacios o caracteres
-            const urlWhatsApp = `https://api.whatsapp.com/send?phone=${nroContacto}&text=${encodeURIComponent(textoMensaje)}`;
-            
-            // Abre WhatsApp Web en una pestaña nueva listo para presionar Enter
-            window.open(urlWhatsApp, '_blank');
+// --- ACCIÓN DEL BOTÓN REGISTRAR (CONEXIÓN DIRECTA CON SHEETDB) ---
+if (btnRegistrar) {
+    btnRegistrar.addEventListener('click', async () => {
+        if (!datosPersonalesInput.value || !sectorSelect.value || !anfitrionSelect.value) {
+            alert('Por favor, complete todos los campos obligatorios antes de registrar.');
+            return;
         }
-        
-        limpiarFormulario();
-    })
-    .catch(error => {
-        console.error("Error:", error);
-        alert("🚨 Error de comunicación con el servidor local.");
-    });
-});
 
+        const selectedOption = anfitrionSelect.options[anfitrionSelect.selectedIndex];
+        const nroContacto = selectedOption ? selectedOption.dataset.contacto : '5492615320950';
+        const observacionesTexto = document.getElementById('observaciones').value || 'Sin observaciones.';
+        
+        // Estructura limpia compatible con SheetDB. 
+        // IMPORTANTE: Asegúrate de que la Fila 1 de tu Excel use exactamente estos mismos nombres de columna.
+        const payload = {
+            "data": [
+                {
+                    "Modo Evento": modoEventoCheck.checked ? "SÍ" : "NO",
+                    "Tipo Ingreso": escaneoRawInput.value.includes('@') ? "DNI" : "QR",
+                    "Escaneo Raw": escaneoRawInput.value || "CÁMARA",
+                    "Datos Personales": datosPersonalesInput.value,
+                    "Empresa": empresaInput.value || "VISITA",
+                    "Sector": sectorSelect.value,
+                    "Anfitrion": anfitrionSelect.value,
+                    "Contacto Aviso": nroContacto,
+                    "Observaciones": observacionesTexto,
+                    "Fecha Hora": new Date().toLocaleString("es-AR")
+                }
+            ]
+        };
+
+        try {
+            // Sincronización nativa con SheetDB (Evita problemas de CORS en el APK y en GitHub Pages)
+            const response = await fetch(URL_API_SHEETDB, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                alert("✅ Registro sincronizado en la hoja de cálculo con éxito.");
+
+                // --- MENSAJE AUTOMÁTICO DE WHATSAPP ---
+                const mensajeWP = `Nuevo ingreso Visita: ${datosPersonalesInput.value} | Empresa: ${empresaInput.value || "VISITA"} | Destino: ${sectorSelect.value} - Anfitrión: ${anfitrionSelect.value}`;
+                
+                // Dispara automáticamente el mensaje al número asociado al anfitrión en el maestro
+                window.open(`https://wa.me/${nroContacto}?text=${encodeURIComponent(mensajeWP)}`, '_blank');
+
+                limpiarFormulario();
+            } else {
+                alert("❌ El servidor de SheetDB rechazó los datos. Verifica los nombres de tus columnas.");
+            }
+        } catch (error) {
+            console.error("Error de red:", error);
+            alert("❌ Error de comunicación. La aplicación no pudo enviar el registro.");
+        }
+    });
+}
+
+// Inicializar componentes al cargar la página
+document.addEventListener('DOMContentLoaded', () => {
+    cargarSectores();
+    if (escaneoRawInput) escaneoRawInput.focus();
+});
 cargarSectores();
