@@ -2,7 +2,7 @@
 // =========================================================================
 // 1. CONFIGURACIÓN INICIAL Y CONEXIÓN A LA API
 // =========================================================================
-?sheet=MOVIMIENTOS
+
 const html5QrCode = new Html5Qrcode("reader");
 // REEMPLAZA ESTA URL por la que te dé SheetDB al vincular tu planilla de visitas
 const URL_API_SHEETDB = 'https://sheetdb.io/api/v1/0r37mye22zrgm';
