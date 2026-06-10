@@ -3,7 +3,6 @@ const html5QrCode = new Html5Qrcode("reader");
 // REEMPLAZA ESTA URL por la que te dé SheetDB al vincular tu nueva planilla de visitas
 const URL_API_SHEETDB = 'https://sheetdb.io/api/v1/0r37mye22zrgm';
 
-// --- MAESTRO DE SECTORES Y ANFITRIONES DE COFARMEN ---
 const maestroSectores = {
     "PLANTA LOGISTICA": [
         { nombre: "MUGNECO ADRIAN", contacto: "5492615320950" }
@@ -82,7 +81,6 @@ const modoEventoCheck = document.getElementById('modoEvento');
 const groupEmpresa = document.getElementById('groupEmpresa');
 const btnRegistrar = document.getElementById('btnRegistrar');
 const btnLimpiar = document.getElementById('btnLimpiar');
-const btnWhatsApp = document.getElementById('btnWhatsApp');
 
 let timeoutAutoGuardar = null;
 
@@ -221,21 +219,20 @@ async function iniciarEscaneo() {
             (decodedText) => {
                 if (datosPersonalesInput) {
                     datosPersonalesInput.value = decodedText;
-                    // Forzamos los eventos para que se procese como una entrada
                     datosPersonalesInput.dispatchEvent(new Event('input', { bubbles: true }));
                 }
                 html5QrCode.stop().then(() => {
                     console.log("Escaneo de cámara finalizado");
                 });
             },
-            (errorMessage) => { /* Silenciar logs de búsqueda continua */ }
+            (errorMessage) => { /* Silenciar logs de búsqueda */ }
         );
     } catch (err) {
         alert("Error al acceder a la cámara. Revisa los permisos.");
     }
 }
 
-// --- ACCIÓN DEL BOTÓN REGISTRAR (CONEXIÓN DIRECTA CON SHEETDB) ---
+// --- ACCIÓN DEL BOTÓN REGISTRAR (ESTRUCTURA DE COLUMNAS DE LA A A LA G) ---
 if (btnRegistrar) {
     btnRegistrar.addEventListener('click', async () => {
         if (!datosPersonalesInput.value || !sectorSelect.value || !anfitrionSelect.value) {
@@ -247,27 +244,22 @@ if (btnRegistrar) {
         const nroContacto = selectedOption ? selectedOption.dataset.contacto : '5492615320950';
         const observacionesTexto = document.getElementById('observaciones').value || 'Sin observaciones.';
         
-        // Estructura limpia compatible con SheetDB. 
-        // IMPORTANTE: Asegúrate de que la Fila 1 de tu Excel use exactamente estos mismos nombres de columna.
+        // El JSON se armó siguiendo el orden exacto de tus columnas (A, B, C, D, E, F, G)
         const payload = {
             "data": [
                 {
-                    "Modo Evento": modoEventoCheck.checked ? "SÍ" : "NO",
-                    "Tipo Ingreso": escaneoRawInput.value.includes('@') ? "DNI" : "QR",
-                    "Escaneo Raw": escaneoRawInput.value || "CÁMARA",
-                    "Datos Personales": datosPersonalesInput.value,
-                    "Empresa": empresaInput.value || "VISITA",
-                    "Sector": sectorSelect.value,
-                    "Anfitrion": anfitrionSelect.value,
-                    "Contacto Aviso": nroContacto,
-                    "Observaciones": observacionesTexto,
-                    "Fecha Hora": new Date().toLocaleString("es-AR")
+                    "Fecha y Hora": new Date().toLocaleString("es-AR"), // Columna A
+                    "Datos Personales": datosPersonalesInput.value,        // Columna B
+                    "Empresa o Farmacia": empresaInput.value || "VISITA", // Columna C
+                    "Sector a Visitar": sectorSelect.value,               // Columna D
+                    "Anfitrión": anfitrionSelect.value,                   // Columna E
+                    "Observaciones": observacionesTexto,                  // Columna F
+                    "Modo Evento": modoEventoCheck.checked ? "SÍ" : "NO"  // Columna G
                 }
             ]
         };
 
         try {
-            // Sincronización nativa con SheetDB (Evita problemas de CORS en el APK y en GitHub Pages)
             const response = await fetch(URL_API_SHEETDB, {
                 method: 'POST',
                 headers: {
@@ -281,14 +273,13 @@ if (btnRegistrar) {
                 alert("✅ Registro sincronizado en la hoja de cálculo con éxito.");
 
                 // --- MENSAJE AUTOMÁTICO DE WHATSAPP ---
-                const mensajeWP = `Nuevo ingreso Visita: ${datosPersonalesInput.value} | Empresa: ${empresaInput.value || "VISITA"} | Destino: ${sectorSelect.value} - Anfitrión: ${anfitrionSelect.value}`;
+                const mensajeWP = `Nuevo ingreso Visita: ${datosPersonalesInput.value} | Empresa/Origen: ${empresaInput.value || "VISITA"} | Destino: ${sectorSelect.value} - Anfitrión: ${anfitrionSelect.value}`;
                 
-                // Dispara automáticamente el mensaje al número asociado al anfitrión en el maestro
                 window.open(`https://wa.me/${nroContacto}?text=${encodeURIComponent(mensajeWP)}`, '_blank');
 
                 limpiarFormulario();
             } else {
-                alert("❌ El servidor de SheetDB rechazó los datos. Verifica los nombres de tus columnas.");
+                alert("❌ SheetDB rechazó los datos. Asegúrate de que la Fila 1 de tu Excel tenga exactamente estos mismos nombres de columna.");
             }
         } catch (error) {
             console.error("Error de red:", error);
@@ -302,4 +293,3 @@ document.addEventListener('DOMContentLoaded', () => {
     cargarSectores();
     if (escaneoRawInput) escaneoRawInput.focus();
 });
-cargarSectores();
