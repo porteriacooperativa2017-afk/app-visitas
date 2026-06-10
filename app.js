@@ -207,19 +207,20 @@ function limpiarFormulario() {
 if (btnLimpiar) btnLimpiar.addEventListener('click', limpiarFormulario);
 
 // Escaneo por medio de la lente de la cámara del celular
-// Escaneo por medio de la lente de la cámara del celular
 async function iniciarEscaneo() {
     if (html5QrCode.isScanning) return;
     try {
         await html5QrCode.start(
             { facingMode: "environment" },
             { 
-                fps: 15, 
-                qrbox: { width: 220, height: 220 }, // 1. Recuadro más chico obliga a acercar físicamente el DNI
+                fps: 20, 
+                // Subimos a 240 para que el DNI entre un poco más cómodo pero siga estando cerca
+                qrbox: { width: 240, height: 240 }, 
                 videoConstraints: {
                     facingMode: "environment",
-                    width: { ideal: 1920 },          // 2. Fuerza resolución Full HD (1080p) para nitidez absoluta
-                    height: { ideal: 1080 }
+                    // Dejamos un rango estándar para que no tire errores de hardware
+                    width: { min: 640, ideal: 1280 },
+                    height: { min: 480, ideal: 720 }
                 }
             },
             (decodedText) => {
@@ -229,26 +230,27 @@ async function iniciarEscaneo() {
                 }
                 html5QrCode.stop();
             },
-            (errorMessage) => {}
+            (errorMessage) => {
+                // Dejar vacío para que los reniegos internos de la cámara no molesten en la pantalla
+            }
         );
 
-        // 🎯 3. TRUCO DEL ZOOM: Aplicar aumento automático por hardware si el celular lo soporta
+        // Intenta aplicar el zoom si la cámara elegida lo soporta
         const videoTrack = html5QrCode.getRunningTrack();
         setTimeout(() => {
             if (videoTrack) {
                 const capabilities = videoTrack.getCapabilities();
                 if (capabilities.zoom) {
                     videoTrack.applyConstraints({
-                        advanced: [{ 
-                            zoom: 2.0 // Setea un zoom doble automático de arranque. Podés probar con 2.5 si querés más cerca todavía.
-                        }]
-                    }).catch(err => console.log("Error aplicando zoom: ", err));
+                        advanced: [{ zoom: 2.0 }] 
+                    }).catch(err => console.log("Zoom no soportado en esta cámara de respaldo"));
                 }
             }
-        }, 600); // Espera un instante corto a que el lente se estabilice
+        }, 650); 
 
     } catch (err) {
-        alert("Permisos denegados para usar la cámara.");
+        // Guardamos el error silenciosamente en la consola del navegador en vez de romper con un alert
+        console.log("Aviso de inicio de cámara: ", err);
     }
 }
 
