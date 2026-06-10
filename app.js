@@ -207,12 +207,21 @@ function limpiarFormulario() {
 if (btnLimpiar) btnLimpiar.addEventListener('click', limpiarFormulario);
 
 // Escaneo por medio de la lente de la cámara del celular
+// Escaneo por medio de la lente de la cámara del celular
 async function iniciarEscaneo() {
     if (html5QrCode.isScanning) return;
     try {
         await html5QrCode.start(
             { facingMode: "environment" },
-            { fps: 10, qrbox: { width: 250, height: 250 } },
+            { 
+                fps: 15, 
+                qrbox: { width: 220, height: 220 }, // 1. Recuadro más chico obliga a acercar físicamente el DNI
+                videoConstraints: {
+                    facingMode: "environment",
+                    width: { ideal: 1920 },          // 2. Fuerza resolución Full HD (1080p) para nitidez absoluta
+                    height: { ideal: 1080 }
+                }
+            },
             (decodedText) => {
                 if (escaneoRawInput) {
                     escaneoRawInput.value = decodedText;
@@ -222,6 +231,22 @@ async function iniciarEscaneo() {
             },
             (errorMessage) => {}
         );
+
+        // 🎯 3. TRUCO DEL ZOOM: Aplicar aumento automático por hardware si el celular lo soporta
+        const videoTrack = html5QrCode.getRunningTrack();
+        setTimeout(() => {
+            if (videoTrack) {
+                const capabilities = videoTrack.getCapabilities();
+                if (capabilities.zoom) {
+                    videoTrack.applyConstraints({
+                        advanced: [{ 
+                            zoom: 2.0 // Setea un zoom doble automático de arranque. Podés probar con 2.5 si querés más cerca todavía.
+                        }]
+                    }).catch(err => console.log("Error aplicando zoom: ", err));
+                }
+            }
+        }, 600); // Espera un instante corto a que el lente se estabilice
+
     } catch (err) {
         alert("Permisos denegados para usar la cámara.");
     }
