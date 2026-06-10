@@ -233,6 +233,7 @@ async function iniciarEscaneo() {
 }
 
 // --- ACCIÓN DEL BOTÓN REGISTRAR (ESTRUCTURA DE COLUMNAS DE LA A A LA G) ---
+// --- ACCIÓN DEL BOTÓN REGISTRAR (ESTRUCTURA CORREGIDA EN MAYÚSCULAS) ---
 if (btnRegistrar) {
     btnRegistrar.addEventListener('click', async () => {
         if (!datosPersonalesInput.value || !sectorSelect.value || !anfitrionSelect.value) {
@@ -242,19 +243,19 @@ if (btnRegistrar) {
 
         const selectedOption = anfitrionSelect.options[anfitrionSelect.selectedIndex];
         const nroContacto = selectedOption ? selectedOption.dataset.contacto : '5492615320950';
-        const observacionesTexto = document.getElementById('observaciones').value || 'Sin observaciones.';
+        const observacionesTexto = document.getElementById('observaciones').value || 'SIN OBSERVACIONES';
         
-        // El JSON se armó siguiendo el orden exacto de tus columnas (A, B, C, D, E, F, G)
+        // Estructura melliza a tu Excel: MAYÚSCULAS, espacios y orden de la A a la G
         const payload = {
             "data": [
                 {
-                    "Fecha y Hora": new Date().toLocaleString("es-AR"), // Columna A
-                    "Datos Personales": datosPersonalesInput.value,        // Columna B
-                    "Empresa o Farmacia": empresaInput.value || "VISITA", // Columna C
-                    "Sector a Visitar": sectorSelect.value,               // Columna D
-                    "Anfitrión": anfitrionSelect.value,                   // Columna E
-                    "Observaciones": observacionesTexto,                  // Columna F
-                    "Modo Evento": modoEventoCheck.checked ? "SÍ" : "NO"  // Columna G
+                    "FECHA Y HORA": new Date().toLocaleString("es-AR"),        // Columna A
+                    "DATOS PERSONALES": datosPersonalesInput.value.toUpperCase(), // Columna B
+                    "EMPRESA O FARMACIA": (empresaInput.value || "VISITA").toUpperCase(), // Columna C
+                    "SECTOR A VISITAR": sectorSelect.value.toUpperCase(),       // Columna D
+                    "ANFITRION": anfitrionSelect.value.toUpperCase(),           // Columna E
+                    "OBSERVACIONES": observacionesTexto.toUpperCase(),          // Columna F
+                    "TIPO DE VISITA": modoEventoCheck.checked ? "SÍ" : "NO"     // Columna G
                 }
             ]
         };
@@ -273,13 +274,13 @@ if (btnRegistrar) {
                 alert("✅ Registro sincronizado en la hoja de cálculo con éxito.");
 
                 // --- MENSAJE AUTOMÁTICO DE WHATSAPP ---
-                const mensajeWP = `Nuevo ingreso Visita: ${datosPersonalesInput.value} | Empresa/Origen: ${empresaInput.value || "VISITA"} | Destino: ${sectorSelect.value} - Anfitrión: ${anfitrionSelect.value}`;
+                const mensajeWP = `Nuevo ingreso Visita: ${datosPersonalesInput.value} | Empresa: ${empresaInput.value || "VISITA"} | Destino: ${sectorSelect.value} - Anfitrión: ${anfitrionSelect.value}`;
                 
                 window.open(`https://wa.me/${nroContacto}?text=${encodeURIComponent(mensajeWP)}`, '_blank');
 
                 limpiarFormulario();
             } else {
-                alert("❌ SheetDB rechazó los datos. Asegúrate de que la Fila 1 de tu Excel tenga exactamente estos mismos nombres de columna.");
+                alert("❌ El servidor de SheetDB rechazó los datos. Verifica que la fila 1 de tu Excel esté en MAYÚSCULAS.");
             }
         } catch (error) {
             console.error("Error de red:", error);
@@ -287,6 +288,8 @@ if (btnRegistrar) {
         }
     });
 }
+}      if (!datosPersonalesInput.value || !sectorSelect.value || !anfitrionSelect.value) {
+      
 
 // Inicializar componentes al cargar la página
 document.addEventListener('DOMContentLoaded', () => {
