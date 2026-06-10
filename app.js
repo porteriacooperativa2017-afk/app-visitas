@@ -16,8 +16,7 @@ const maestroSectores = {
     "CAPITAL HUMANO": [
         { nombre: "Fernández Rubén", contacto: "5492615320950" },
         { nombre: "Pablo Jacuzzi", contacto: "5492615320950" },
-        { nombre: "Yacuzzi Mariana", contacto: "5492615320950" },
-        { nombre: "Tizera", contacto: "5492615320950" }
+        { nombre: "Tissera Mariana", contacto: "5492615320950" },
     ],
     "Administracion": [
         { nombre: "Martin Marcelo", contacto: "5492615320950" },
