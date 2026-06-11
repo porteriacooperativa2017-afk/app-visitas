@@ -33,7 +33,7 @@ const maestroSectores = {
     "Funsad": [{ nombre: "Ganem Victoria", contacto: "549261551344" }],
     "Lobby": [{ nombre: "Sanchez Alejandro", contacto: "549261551344" },
               { nombre: "Ganem Victoria", contacto: "549261551344" },
-              { nombre: "Escudero Carina", contacto: "549261551344" }]
+              { nombre: "Escudero Carina", contacto: "549261551344" }],
     "Operador Logistico nave 2": [
         { nombre: "Constantino Adriana", contacto: "5492615320950" },
         { nombre: "Valdez Liliana", contacto: "5492616757808" }
@@ -86,7 +86,7 @@ const maestroSectores = {
     ],
     "Mantenimiento": [{ nombre: "Marsollier Ivan", contacto: "5492617205696" },
                       { nombre: "Brizuela Tomas", contacto:"5493825411112"}],
-    "Guardia": [{ nombre: "Puesto 1", contacto: "5492615320950" }]
+    "Guardia": [{ nombre: "Puesto 1", contacto: "5492615320950" }],
     "EVENTO": [{ nombre: "EVENTO", contacto: "N/A" }]
 };
 
