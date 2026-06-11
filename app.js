@@ -84,7 +84,9 @@ const maestroSectores = {
         { nombre: "Natalia Bustos", contacto: "5492612128450" },
         { nombre: "Jennifer Agüero", contacto: "5492613655491" }
     ],
-    "Mantenimiento": [{ nombre: "Marsollier Ivan", contacto: "5492617205696" },{ nombre: "Brizuela Tomas", contacto:"5493825411112"},],
+    "Mantenimiento": [{ nombre: "Marsollier Ivan", contacto: "5492617205696" },
+                      { nombre: "Brizuela Tomas", contacto:"5493825411112"}],
+    "Guardia": [{ nombre: "Puesto 1", contacto: "5492615320950" }]
     "EVENTO": [{ nombre: "EVENTO", contacto: "N/A" }]
 };
 
