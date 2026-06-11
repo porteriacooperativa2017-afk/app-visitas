@@ -15,7 +15,7 @@ const URL_API_SHEETDB = 'https://sheetdb.io/api/v1/no_se_usa_pero_queda_guardada
 const maestroSectores = {
     "PLANTA LOGISTICA": [{ nombre: "MUGNECO ADRIAN", contacto: "5492615320950" },
                          {nombre:"Carbajo Rodrigo",contacto: "5492615320950"},
-                         {nombre:"Di Lorenzo Diego",contacto: "5492615320950"},],
+                         {nombre:"Di Lorenzo Diego",contacto: "5492615320950"}],
     "CAPITAL HUMANO": [
         { nombre: "Fernández Rubén", contacto: "N/A" },
         { nombre: "Pablo Iacobucci", contacto: "5492614168508" },
