@@ -4,7 +4,7 @@
 const html5QrCode = new Html5Qrcode("reader");
 
 // PEGÁ ACÁ EL ENLACE LARGO QUE TE DIO GOOGLE AL IMPLEMENTAR (Termina en /exec)
-const URL_API_GOOGLE = 'https://script.google.com/macros/s/AKfycbyD2o3LopK1cnajh8GrPow-HwJA2H5VUqYBdJhBNr8zCKX5OfygpEldAeAL5sOPmVc7/exec';
+const URL_API_GOOGLE = 'https://script.google.com/macros/s/AKfycbzJIPibeSCrG9pSNzrPpIxJE9ft05O28PoL8TWwh5a8tUVbZ3yWuLoRwNPIy0iwscw6/exec';
 
 // Dejamos esta constante vieja acá arriba por si tu HTML o algún script la requiere, no molesta.
 const URL_API_SHEETDB = 'https://sheetdb.io/api/v1/no_se_usa_pero_queda_guardada';
@@ -13,58 +13,75 @@ const URL_API_SHEETDB = 'https://sheetdb.io/api/v1/no_se_usa_pero_queda_guardada
 // 2. MAESTRO DE SECTORES Y ANFITRIONES (COFARMEN)
 // =========================================================================
 const maestroSectores = {
-    "PLANTA LOGISTICA": [{ nombre: "MUGNECO ADRIAN", contacto: "5492615320950" }],
+    "PLANTA LOGISTICA": [{ nombre: "MUGNECO ADRIAN", contacto: "5492615320950" },
+                         {nombre:"Carbajo Rodrigo",contacto: "5492615320950"},
+                         {nombre:"Di Lorenzo Diego",contacto: "5492615320950"},],
     "CAPITAL HUMANO": [
-        { nombre: "Fernández Rubén", contacto: "5492615320950" },
-        { nombre: "Pablo Jacuzzi", contacto: "5492615320950" },
-        { nombre: "Yacuzzi Mariana", contacto: "5492615320950" },
-        { nombre: "Tizera", contacto: "5492615320950" }
+        { nombre: "Fernández Rubén", contacto: "N/A" },
+        { nombre: "Pablo Iacobucci", contacto: "5492614168508" },
+        { nombre: "Tissera Mariana", contacto: "5492616560375" },
+    
     ],
     "Administracion": [
-        { nombre: "Martin Marcelo", contacto: "5492615320950" },
-        { nombre: "Bustos Marcos", contacto: "5492615320950" },
-        { nombre: "Videla Javier", contacto: "5492615320950" },
-        { nombre: "Agüero Antonio", contacto: "5492615320950" },
-        { nombre: "Velez Daniel", contacto: "5492615320950" }
+        { nombre: "Martin Marcelo", contacto: "N/A" },
+        { nombre: "Bustos Marcos", contacto: "5492613346001" },
+        { nombre: "Videla Javier", contacto: "N/A" },
+        { nombre: "Agüero Antonio", contacto: "N/A" },
+        { nombre: "Velez Daniel", contacto: "N/A" }
     ],
-    "Consejo": [{ nombre: "Ganem Victoria", contacto: "5492615320950" }],
+    "Consejo": [{ nombre: "Ganem Victoria", contacto: "5492615513444" }],
+    "Funsad": [{ nombre: "Ganem Victoria", contacto: "549261551344" }],           
     "Operador Logistico nave 2": [
         { nombre: "Constantino Adriana", contacto: "5492615320950" },
-        { nombre: "Valdez Liliana", contacto: "5492615320950" }
+        { nombre: "Valdez Liliana", contacto: "5492616757808" }
     ],
     "Comercial": [
-        { nombre: "Molina Andres", contacto: "5492615320950" },
-        { nombre: "Tescari Maria Jose", contacto: "5492615320950" },
-        { nombre: "Reina Julia", contacto: "5492615320950" },
-        { nombre: "Sepulveda Marcela", contacto: "5492615320950" },
-        { nombre: "Sanabria Juan", contacto: "5492615320950" },
-        { nombre: "Perez Agustin", contacto: "5492615320950" }
+        { nombre: "Molina Andres", contacto: "54926168320239" },
+        { nombre: "Tescari Maria Jose", contacto: "5492615081493" },
+        { nombre: "Reina Julia", contacto: "5492615553343" },
+        { nombre: "Sepulveda Marcela", contacto: "N/A" },
+        { nombre: "Sanabria Juan", contacto: "N/A" },
+        { nombre: "Perez Agustin", contacto: "N/A" }
     ],
     "Administración": [
-        { nombre: "Pelayes Sergio", contacto: "5492615320950" },
-        { nombre: "Oropel Walter", contacto: "5492615320950" },
-        { nombre: "Garay Diego", contacto: "5492615320950" },
+        { nombre: "Pelayes Sergio", contacto: "5492616849724" },
+        { nombre: "Oropel Walter", contacto: "5492615783825" },
+        { nombre: "Garay Diego", contacto: "N/A" },
         { nombre: "Fernandez Jose Luis", contacto: "5492615320950" },
         { nombre: "Dominguez Diego", contacto: "5492615320950" },
         { nombre: "Peroso Vanesa", contacto: "5492615320950" }
     ],
-    "Recepción": [
+    "Recepción Nave 1": [
         { nombre: "Paris Sebastian", contacto: "5492615320950" },
         { nombre: "Guerra Emanuel", contacto: "5492615320950" },
-        { nombre: "Pubill Franco", contacto: "5492615320950" },
-        { nombre: "Fernandez Leonardo", contacto: "5492615320950" },
-        { nombre: "Marzonetto Emiliano", contacto: "5492615320950" }
+        { nombre: "Pubill Franco", contacto: "N/A" },
+        { nombre: "Fernandez Leonardo", contacto: "N/A" },
+        { nombre: "Marzonetto Emiliano", contacto: "N/A" }
     ],
-    "Evento": [{ nombre: "Evento", contacto: "5492615320950" }],
+    "Recepción Nave 2": [
+        { nombre: "Moran Federico", contacto: "N/A" },
+        { nombre: "Montenegro Victor", contacto: "N/A" },
+        {nombre: "Herrera Luis" , contacto: "N/A" }],
+        "Créditos": [
+        { nombre: "Rovatti Dario", contacto: "5492615256184" },
+        { nombre: "Agüero Rocio", contacto: "N/A" },
+        {nombre: "Andreoni Anabela" , contacto: "N/A" }],
+    "Sistemas": [
+        { nombre: "Lujan Omar", contacto: "N/A" },
+        { nombre: "Puebla Adrian", contacto: "N/A" },
+        {nombre: "Placci Martin" , contacto: "N/A" }],
+      "Devolución a Proveedor y/o donaciones": [
+        { nombre: "Alvarez Cecilia", contacto: "5492613024121" }],
+    "Evento": [{ nombre: "Evento", contacto: "N/A" }],
     "Mostrador": [{ nombre: "Atención Mostrador", contacto: "5492615320950" }],
     "Recepcion Técnica": [
-        { nombre: "Daniel Ríos", contacto: "5492615320950" },
-        { nombre: "Cecilia Nadal", contacto: "5492615320950" },
-        { nombre: "Karina Escudero", contacto: "5492615320950" },
-        { nombre: "Natalia Bustos", contacto: "5492615320950" },
-        { nombre: "Jennifer Agüero", contacto: "5492615320950" }
+        { nombre: "Daniel Ríos", contacto: "N/A" },
+        { nombre: "Cecilia Nadal", contacto: "5492616816663" },
+        { nombre: "Carina Escudero", contacto: "5492615122324" },
+        { nombre: "Natalia Bustos", contacto: "5492612128450" },
+        { nombre: "Jennifer Agüero", contacto: "5492613655491" }
     ],
-    "Mantenimiento": [{ nombre: "Personal de Mantenimiento", contacto: "5492615320950" }],
+    "Mantenimiento": [{ nombre: "Marsollier Ivan", contacto: "5492617205696" },{ nombre: "Brizuela Tomas", contacto:"5493825411112"},],
     "EVENTO": [{ nombre: "EVENTO", contacto: "N/A" }]
 };
 
