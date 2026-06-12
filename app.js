@@ -4,7 +4,7 @@
 const html5QrCode = new Html5Qrcode("reader");
 
 // PEGÁ ACÁ EL ENLACE LARGO QUE TE DIO GOOGLE AL IMPLEMENTAR (Termina en /exec)
-const URL_API_GOOGLE = 'https://script.google.com/macros/s/AKfycbzTdyxixCihFy1wls1aeZ1o4A-E49MAEO1qKUOz9oe0_jQzr5-Aqo8Vi3LdI6zufw8F/exec';
+const URL_API_GOOGLE = 'https://script.google.com/macros/s/AKfycbxVOYsO2qFb5RBEr8rpYB45xOktban54DEHbQIx6RHcvRAfIgF5S6pkmskXynVe0j_o/exec';
 
 // Dejamos esta constante vieja acá arriba por si tu HTML o algún script la requiere, no molesta.
 const URL_API_SHEETDB = 'https://sheetdb.io/api/v1/no_se_usa_pero_queda_guardada';
@@ -13,7 +13,7 @@ const URL_API_SHEETDB = 'https://sheetdb.io/api/v1/no_se_usa_pero_queda_guardada
 // 2. MAESTRO DE SECTORES Y ANFITRIONES (COFARMEN)
 // =========================================================================
 const maestroSectores = {
-    "PLANTA LOGISTICA": [{ nombre: "MUGNECO ADRIAN", contacto: "5492615320950" },
+    "PLANTA LOGISTICA": [{ nombre: "Mugneco Adrian", contacto: "5492615320950" },
                          {nombre:"Carbajo Rodrigo",contacto: "5492615320950"},
                          {nombre:"Di Lorenzo Diego",contacto: "5492615320950"}],
     "CAPITAL HUMANO": [
@@ -27,11 +27,11 @@ const maestroSectores = {
         { nombre: "Bustos Marcos", contacto: "5492613346001" },
         { nombre: "Videla Javier", contacto: "5492615320950" },
         { nombre: "Agüero Antonio", contacto: "5492615320950" },
-        { nombre: "Velez Daniel", contacto: "5492615320950" }
+        { nombre: "Velez Daniel", contacto: "N/A" }
     ],
     "Consejo": [{ nombre: "Ganem Victoria", contacto: "5492615513444" }],
     "Funsad": [{ nombre: "Ganem Victoria", contacto: "549261551344" }],
-    "Lobby": [{ nombre: "Sanchez Alejandra", contacto: "5492615320950" },
+    "Lobby": [{ nombre: "Sanchez Alejandro", contacto: "549261551344" },
               { nombre: "Ganem Victoria", contacto: "549261551344" },
               { nombre: "Escudero Carina", contacto: "549261551344" }],
     "Operador Logistico nave 2": [
@@ -42,9 +42,9 @@ const maestroSectores = {
         { nombre: "Molina Andres", contacto: "54926168320239" },
         { nombre: "Tescari Maria Jose", contacto: "5492615081493" },
         { nombre: "Reina Julia", contacto: "5492615553343" },
-        { nombre: "Sepulveda Marcela", contacto: "N/A" },
+        { nombre: "Sepulveda Marcela", contacto: "5492615320950" },
         { nombre: "Sanabria Juan", contacto: "5492615320950" },
-        { nombre: "Perez Agustin", contacto: "5492615320950" }
+        { nombre: "Perez Agustin", contacto: "5492615320950"}
     ],
     "Administración": [
         { nombre: "Pelayes Sergio", contacto: "5492616849724" },
@@ -66,7 +66,7 @@ const maestroSectores = {
         { nombre: "Montenegro Victor", contacto: "N/A" },
         {nombre: "Herrera Luis" , contacto: "N/A" }],
         "Créditos": [
-        { nombre: "Rovatti Dario", contacto: "5492615256184" },
+        { nombre: "Rovatti Dario", contacto: "5492615320950" },
         { nombre: "Agüero Rocio", contacto: "N/A" },
         {nombre: "Andreoni Anabela" , contacto: "N/A" }],
     "Sistemas": [
@@ -74,7 +74,7 @@ const maestroSectores = {
         { nombre: "Puebla Adrian", contacto: "5492615320950" },
         {nombre: "Placci Martin" , contacto: "5492615320950" }],
       "Devolución a Proveedor y/o donaciones": [
-        { nombre: "Alvarez Cecilia", contacto: "5492613024121" }],
+        { nombre: "Alvarez Cecilia", contacto: "5492615320950" }],
     "Evento": [{ nombre: "Evento", contacto: "N/A" }],
     "Mostrador": [{ nombre: "Atención Mostrador", contacto: "N/A" }],
     "Recepcion Técnica": [
