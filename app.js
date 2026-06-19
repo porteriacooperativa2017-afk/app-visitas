@@ -93,7 +93,8 @@ function doPost(e) {
 // 🔍 Función que recorre tu estructura de datos nativa para encontrar el contacto
 function obtenerTelefonoAnfitrion(nombreBuscado) {
   var directorio = {
-        "PLANTA LOGISTICA": [{ nombre: "MUGNECO ADRIAN", contacto: "5492615320950" },
+    "Mostrador": [{ nombre: "Atención Mostrador", contacto: "N/A" }],
+    "PLANTA LOGISTICA": [{ nombre: "MUGNECO ADRIAN", contacto: "5492615320950" },
                          {nombre:"Carbajo Rodrigo",contacto: "5492615320950"},
                          {nombre:"Di Lorenzo Diego",contacto: "5492615320950"}],
     "CAPITAL HUMANO": [
@@ -161,7 +162,6 @@ function obtenerTelefonoAnfitrion(nombreBuscado) {
       "Devolución a Proveedor y/o donaciones": [
         { nombre: "Alvarez Cecilia", contacto: "5492615320950" }],
     "Evento": [{ nombre: "Evento", contacto: "N/A" }],
-    "Mostrador": [{ nombre: "Atención Mostrador", contacto: "N/A" }],
     "Recepcion Técnica": [
         { nombre: "Daniel Ríos", contacto: "5492615320950" },
         { nombre: "Cecilia Nadal", contacto: "5492615320950" },
