@@ -46,7 +46,7 @@ const maestroSectores = {
     ],
     "Cajas": [
         { nombre: "Arce José", contacto: "5492615320950" },
-        { nombre: "Ponse Matias", contacto: "5492615320950" }
+        { nombre: "Ponce Matias", contacto: "5492615320950" }
        
     ],
     "Administración osep": [
