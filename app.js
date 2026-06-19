@@ -175,41 +175,240 @@ function obtenerTelefonoAnfitrion(nombreBuscado) {
     "EVENTO": [{ nombre: "EVENTO", contacto: "N/A" }]
 };
 
-  var limpioBuscado = nombreBuscado.toString().trim().toLowerCase();
+ const escaneoRawInput = document.getElementById('escaneoRaw');
+const datosPersonalesInput = document.getElementById('datosPersonales');
+const empresaInput = document.getElementById('empresa');
+const sectorSelect = document.getElementById('sector');
+const anfitrionSelect = document.getElementById('anfitrion');
+const modoEventoCheck = document.getElementById('modoEvento');
+const groupEmpresa = document.getElementById('groupEmpresa');
+const btnRegistrar = document.getElementById('btnRegistrar');
+const btnLimpiar = document.getElementById('btnLimpiar');
 
-  // Recorremos cada sector de la lista
-  for (var sector in directorio) {
-    var personas = directorio[sector];
-    for (var i = 0; i < personas.length; i++) {
-      // Si coincide el nombre, devolvemos el número de contacto
-      if (personas[i].nombre.toString().trim().toLowerCase() === limpioBuscado) {
-        return personas[i].contacto.toString().trim();
-      }
+let timeoutAutoGuardar = null;
+
+// Foco automático para disparar con la pistola de hardware
+document.addEventListener('click', (evento) => {
+    const camposPermitidos = ['sector', 'anfitrion', 'observaciones', 'empresa', 'modoEvento'];
+    if (camposPermitidos.includes(evento.target.id) || evento.target.tagName === 'OPTION') {
+        return; 
     }
-  }
-  return null; // Si no lo encuentra en ningún sector
+    if (escaneoRawInput) escaneoRawInput.focus();
+});
+
+// Loaders dinámicos de selectores
+function cargarSectores() {
+    if (!sectorSelect) return;
+    sectorSelect.innerHTML = '<option value="">Seleccione un sector...</option>';
+    Object.keys(maestroSectores).forEach(sector => {
+        if(sector !== "EVENTO" || modoEventoCheck.checked) {
+            let option = document.createElement('option');
+            option.value = sector;
+            option.textContent = sector;
+            sectorSelect.appendChild(option);
+        }
+    });
 }
 
-// 🚀 Función de pasarela de envío por API de QR único (Ejemplo Green-API gratuito o similar)
-function enviarMensajeServidor(telefono, mensaje) {
-  // CONFIGURAR AQUÍ TUS CREDENCIALES DEL EMISOR ÚNICO
-  var idInstance = "7107649071";
-  var apiTokenInstance = "f072e835115f43118a3cf6ce57b6c06188a895a0affe4da997";
-  
-  var url = "https://api.green-api.com/waInstance" + idInstance + "/sendMessage/" + apiTokenInstance;
-  
-  var payload = {
-    "chatId": telefono + "@c.us", 
-    "message": mensaje
-  };
-  
-  var opciones = {
-    "method" : "post",
-    "contentType": "application/json",
-    "payload" : JSON.stringify(payload),
-    "muteHttpExceptions": true
-  };
-  
-  var respuesta = UrlFetchApp.fetch(url, opciones);
-  return respuesta.getContentText();
+if (sectorSelect) {
+    sectorSelect.addEventListener('change', (e) => {
+        const sectorSeleccionado = e.target.value;
+        anfitrionSelect.innerHTML = '<option value="">Seleccione anfitrión...</option>';
+        
+        if (sectorSeleccionado && maestroSectores[sectorSeleccionado]) {
+            maestroSectores[sectorSeleccionado].forEach(anf => {
+                let option = document.createElement('option');
+                option.value = anf.nombre;
+                option.textContent = anf.nombre;
+                option.dataset.contacto = anf.contacto; 
+                anfitrionSelect.appendChild(option);
+            });
+            if(maestroSectores[sectorSeleccionado].length === 1) {
+                anfitrionSelect.selectedIndex = 1; 
+            }
+        }
+    });
 }
+
+// =========================================================================
+// 4. SISTEMA DE LIMPIEZA Y DESARMADO DE DNI (@ / QR)
+// =========================================================================
+if (escaneoRawInput) {
+    escaneoRawInput.addEventListener('input', () => {
+        const rawText = escaneoRawInput.value.trim();
+        if (!rawText) return;
+
+        if (timeoutAutoGuardar) clearTimeout(timeoutAutoGuardar);
+
+        // Desarmado de DNI tarjeta de formato argentino
+        if (rawText.includes('@')) {
+            const partes = rawText.split('@');
+            if (partes.length >= 5) {
+                const apellido = partes[1].toUpperCase();
+                const nombre = partes[2].toUpperCase();
+                const dni = partes[4];
+                datosPersonalesInput.value = `${apellido}, ${nombre} - DNI: ${dni}`;
+            } else {
+                datosPersonalesInput.value = "FORMATO DNI NO RECONOCIDO";
+            }
+            if (!modoEventoCheck.checked) {
+                groupEmpresa.style.display = 'flex';
+                empresaInput.value = '';
+                empresaInput.focus();
+            }
+        } else {
+            // Desarmado de códigos QR con estructura predeterminada
+            const partes = rawText.split(' - ');
+            if (partes.length >= 3) {
+                datosPersonalesInput.value = partes[0].toUpperCase(); 
+                empresaInput.value = partes[2].toUpperCase();         
+                groupEmpresa.style.display = 'none';    
+            } else {
+                datosPersonalesInput.value = rawText.toUpperCase(); 
+            }
+        }
+
+        // Auto-guardado instantáneo en Modo Evento Masivo
+        if (modoEventoCheck.checked && datosPersonalesInput.value && !datosPersonalesInput.value.includes("NO RECONOCIDO")) {
+            timeoutAutoGuardar = setTimeout(() => {
+                if (btnRegistrar) btnRegistrar.click(); 
+            }, 200); 
+        }
+    });
+}
+
+if (modoEventoCheck) {
+    modoEventoCheck.addEventListener('change', () => {
+        if (modoEventoCheck.checked) {
+            document.body.style.setProperty('--accent-blue', 'var(--accent-event)');
+            groupEmpresa.style.display = 'none';
+            empresaInput.value = "EVENTO";
+            cargarSectores();
+            sectorSelect.value = "EVENTO";
+            sectorSelect.dispatchEvent(new Event('change')); 
+        } else {
+            document.body.style.setProperty('--accent-blue', '#0052cc');
+            groupEmpresa.style.display = 'flex';
+            limpiarFormulario();
+        }
+        if (escaneoRawInput) escaneoRawInput.focus();
+    });
+}
+
+function limpiarFormulario() {
+    if (escaneoRawInput) escaneoRawInput.value = '';
+    if (datosPersonalesInput) datosPersonalesInput.value = '';
+    if (!modoEventoCheck.checked) {
+        if (empresaInput) empresaInput.value = '';
+        if (sectorSelect) sectorSelect.value = '';
+        if (anfitrionSelect) anfitrionSelect.innerHTML = '<option value="">Seleccione anfitrión...</option>';
+    }
+    const obsField = document.getElementById('observaciones');
+    if (obsField) obsField.value = '';
+    if (escaneoRawInput) escaneoRawInput.focus();
+}
+
+if (btnLimpiar) btnLimpiar.addEventListener('click', limpiarFormulario);
+
+// Escaneo por medio de la lente de la cámara del celular
+async function iniciarEscaneo() {
+    if (html5QrCode.isScanning) return;
+    try {
+        await html5QrCode.start(
+            { facingMode: "environment" },
+            { 
+                fps: 20, 
+                // Subimos a 240 para que el DNI entre un poco más cómodo pero siga estando cerca
+                qrbox: { width: 240, height: 240 }, 
+                videoConstraints: {
+                    facingMode: "environment",
+                    // Dejamos un rango estándar para que no tire errores de hardware
+                    width: { min: 640, ideal: 1280 },
+                    height: { min: 480, ideal: 720 }
+                }
+            },
+            (decodedText) => {
+                if (escaneoRawInput) {
+                    escaneoRawInput.value = decodedText;
+                    escaneoRawInput.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+                html5QrCode.stop();
+            },
+            (errorMessage) => {
+                // Dejar vacío para que los reniegos internos de la cámara no molesten en la pantalla
+            }
+        );
+
+        // Intenta aplicar el zoom si la cámara elegida lo soporta
+        const videoTrack = html5QrCode.getRunningTrack();
+        setTimeout(() => {
+            if (videoTrack) {
+                const capabilities = videoTrack.getCapabilities();
+                if (capabilities.zoom) {
+                    videoTrack.applyConstraints({
+                        advanced: [{ zoom: 2.0 }] 
+                    }).catch(err => console.log("Zoom no soportado en esta cámara de respaldo"));
+                }
+            }
+        }, 650); 
+
+    } catch (err) {
+        // Guardamos el error silenciosamente en la consola del navegador en vez de romper con un alert
+        console.log("Aviso de inicio de cámara: ", err);
+    }
+}
+
+// =========================================================================
+// 5. EVENTO REGISTRAR - ENVÍO SEGURO DIRECTO A GOOGLE SCRIPT (NO-CORS)
+// =========================================================================
+if (btnRegistrar) {
+    btnRegistrar.addEventListener('click', async () => {
+        if (!datosPersonalesInput.value || !sectorSelect.value || !anfitrionSelect.value) {
+            alert('Por favor, complete los campos obligatorios antes de registrar.');
+            return;
+        }
+
+        const selectedOption = anfitrionSelect.options[anfitrionSelect.selectedIndex];
+        const nroContacto = selectedOption ? selectedOption.dataset.contacto : '5492615320950';
+        const obsElement = document.getElementById('observaciones');
+        const observacionesTexto = obsElement && obsElement.value ? obsElement.value.toUpperCase() : 'SIN OBSERVACIONES';
+        
+        // Empaquetamos en minúsculas tal cual lo requiere tu script del Excel
+        const datosObj = {
+            "datosPersonales": datosPersonalesInput.value.toUpperCase(),
+            "empresa": (empresaInput.value || "VISITA").toUpperCase(),
+            "sector": sectorSelect.value.toUpperCase(),
+            "anfitrion": anfitrionSelect.value.toUpperCase(),
+            "observaciones": observacionesTexto,
+            "modoEvento": modoEventoCheck.checked // Envía true o false
+        };
+
+        try {
+            // Enviamos como text/plain con mode: no-cors para saltar bloqueos de red
+            await fetch(URL_API_GOOGLE, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'text/plain'
+                },
+                body: JSON.stringify(datosObj)
+            });
+
+            // Al no saltar al catch, el registro fue insertado con éxito en tu Google Sheets
+            alert("✅ Registro enviado a la hoja de cálculo con éxito.");
+
+          
+
+            limpiarFormulario();
+
+        } catch (error) {
+            console.error("Error crítico de red:", error);
+            alert("❌ Error de red. No se pudo conectar con la base de datos de Google.");
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    cargarSectores();
+    if (escaneoRawInput) escaneoRawInput.focus();
+});
