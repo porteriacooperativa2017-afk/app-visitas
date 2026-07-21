@@ -27,6 +27,13 @@ const maestroSectores = {
         { nombre: "Agüero Antonio", contacto: "5492615320950" },
         { nombre: "Velez Daniel", contacto: "N/A" }
     ],
+     "Gerencia": [
+        { nombre: "Funes Cristian", contacto: "5492615320950" },
+        { nombre: "Pablo Iacobucci", contacto: "5492614168508" },
+         { nombre: "Ganem Victoria", contacto: "549261551344" },
+        { nombre: "Martin Marcelo", contacto: "5492615320950" },
+    
+    ],
     "Consejo": [{ nombre: "Ganem Victoria", contacto: "5492615513444" }],
     "Funsad": [{ nombre: "Ganem Victoria", contacto: "549261551344" }],
     "Lobby": [{ nombre: "Sanchez Alejandro", contacto: "5492615158389" },
