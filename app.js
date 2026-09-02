@@ -1,7 +1,6 @@
 const html5QrCode = new Html5Qrcode("reader");
 
 const URL_API_GOOGLE = 'https://script.google.com/macros/s/AKfycbyZOweDCad2gQ_pzn0rDuMg4EWbxow1x8RZos8M1JiaJt2Xe_hXVOnO5N07QyVn6NMZ/exec';
-const URL_API_SHEETDB = 'https://sheetdb.io/api/v1/no_se_usa_pero_queda_guardada';
 
 const maestroSectores = {
     "Mostrador": [{ nombre: "Atención Mostrador", contacto: "N/A" }],
@@ -84,7 +83,6 @@ const maestroSectores = {
     "Devolución a Proveedor y/o donaciones": [
         { nombre: "Alvarez Cecilia", contacto: "5492615320950" }
     ],
-    "Evento": [{ nombre: "Evento", contacto: "N/A" }],
     "Recepcion Técnica": [
         { nombre: "Daniel Ríos", contacto: "5492615320950" },
         { nombre: "Cecilia Nadal", contacto: "5492615320950" },
@@ -118,7 +116,9 @@ const loadingOverlay = document.getElementById('loadingOverlay');
 let timeoutAutoGuardar = null;
 
 function mostrarCargando(mostrar) {
-    if (loadingOverlay) loadingOverlay.style.display = mostrar ? 'flex' : 'none';
+    if (loadingOverlay) {
+        loadingOverlay.style.display = mostrar ? 'flex' : 'none';
+    }
 }
 
 document.addEventListener('click', (evento) => {
@@ -301,6 +301,7 @@ btnRegistrar.addEventListener('click', async () => {
         return;
     }
 
+    // Muestra la pantalla de carga inmediatamente antes del fetch
     mostrarCargando(true);
 
     const selectedOption = anfitrionSelect.options[anfitrionSelect.selectedIndex];
