@@ -52,7 +52,7 @@ const maestroSectores = {
     ],
     "Administración osep": [
         { nombre: "Pelayes Sergio", contacto: "5492615320950" },
-        { nombre: "Oropel Walter", contacto: "55492615320950" },
+        { nombre: "Oropel Walter", contacto: "5492615320950" },
         { nombre: "Garay Diego", contacto: "5492615320950" },
         { nombre: "Fernandez Jose Luis", contacto: "5492615320950" },
         { nombre: "Dominguez Diego", contacto: "5492615320950" },
