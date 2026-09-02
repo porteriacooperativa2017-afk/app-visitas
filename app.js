@@ -301,7 +301,6 @@ btnRegistrar.addEventListener('click', async () => {
         return;
     }
 
-    // 1. Mostrar pantalla de carga futurista de inmediato
     mostrarCargando(true);
 
     const selectedOption = anfitrionSelect.options[anfitrionSelect.selectedIndex];
@@ -322,7 +321,6 @@ btnRegistrar.addEventListener('click', async () => {
     };
 
     try {
-        // Disparamos la petición y garantizamos un retraso mínimo de 900ms para apreciar la barra de carga
         await Promise.all([
             fetch(URL_API_GOOGLE, {
                 method: 'POST',
