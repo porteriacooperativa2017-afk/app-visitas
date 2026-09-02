@@ -301,7 +301,7 @@ btnRegistrar.addEventListener('click', async () => {
         return;
     }
 
-    // Muestra la pantalla de carga inmediatamente antes del fetch
+    // 1. Mostrar pantalla de carga futurista de inmediato
     mostrarCargando(true);
 
     const selectedOption = anfitrionSelect.options[anfitrionSelect.selectedIndex];
@@ -322,12 +322,16 @@ btnRegistrar.addEventListener('click', async () => {
     };
 
     try {
-        await fetch(URL_API_GOOGLE, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify(datosObj)
-        });
+        // Disparamos la petición y garantizamos un retraso mínimo de 900ms para apreciar la barra de carga
+        await Promise.all([
+            fetch(URL_API_GOOGLE, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify(datosObj)
+            }),
+            new Promise(resolve => setTimeout(resolve, 900))
+        ]);
 
         mostrarCargando(false);
         alert("✅ Registro enviado a la hoja de cálculo con éxito.");
