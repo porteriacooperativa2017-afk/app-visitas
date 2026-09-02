@@ -3,9 +3,9 @@ const html5QrCode = new Html5Qrcode("reader");
 const URL_API_GOOGLE = 'https://script.google.com/macros/s/AKfycbyZOweDCad2gQ_pzn0rDuMg4EWbxow1x8RZos8M1JiaJt2Xe_hXVOnO5N07QyVn6NMZ/exec';
 
 const maestroSectores = {
-    "Mostrador": [{ nombre: "Atención Mostrador", contacto: "N/A" }],
+    "Mostrador": [{ nombre: "Retiro de vales", contacto: "N/A" }],
     "PLANTA LOGISTICA": [
-        { nombre: "MUGNECO ADRIAN", contacto: "5492615320950" },
+        { nombre: "Mugneco Adrian", contacto: "5492615320950" },
         { nombre: "Carbajo Rodrigo", contacto: "5492615320950" },
         { nombre: "Di Lorenzo Diego", contacto: "5492615320950" }
     ],
@@ -59,16 +59,10 @@ const maestroSectores = {
         { nombre: "Peroso Vanesa", contacto: "5492615320950" }
     ],
     "Recepción Nave 1": [
-        { nombre: "Paris Sebastian", contacto: "5492615320950" },
-        { nombre: "Guerra Emanuel", contacto: "N/A" },
-        { nombre: "Pubill Franco", contacto: "N/A" },
-        { nombre: "Fernandez Leonardo", contacto: "N/A" },
-        { nombre: "Marzonetto Emiliano", contacto: "N/A" }
+        { nombre: "operario del sector", contacto: "N/A" }
     ],
     "Recepción Nave 2": [
-        { nombre: "Moran Federico", contacto: "N/A" },
-        { nombre: "Montenegro Victor", contacto: "N/A" },
-        { nombre: "Herrera Luis", contacto: "N/A" }
+        { nombre: "operario del sector", contacto: "N/A" }
     ],
     "Créditos": [
         { nombre: "Rovatti Dario", contacto: "5492615320950" },
@@ -83,7 +77,7 @@ const maestroSectores = {
     "Devolución a Proveedor y/o donaciones": [
         { nombre: "Alvarez Cecilia", contacto: "5492615320950" }
     ],
-    "Recepcion Técnica": [
+    "Dirección Técnica": [
         { nombre: "Daniel Ríos", contacto: "5492615320950" },
         { nombre: "Cecilia Nadal", contacto: "5492615320950" },
         { nombre: "Carina Escudero", contacto: "5492615320950" },
