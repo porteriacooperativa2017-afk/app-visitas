@@ -111,10 +111,28 @@ const groupAnfitrion = document.getElementById('groupAnfitrion');
 const labelAnfitrion = document.getElementById('labelAnfitrion');
 const btnRegistrar = document.getElementById('btnRegistrar');
 const loadingOverlay = document.getElementById('loadingOverlay');
+const scannerStatus = document.getElementById('scannerStatus');
 
 let timeoutAutoGuardar = null;
 let ultimoEscaneoEvento = '';
 let momentoUltimoEscaneoEvento = 0;
+const cacheEventoKey = 'qrU_evento_personas_registradas';
+const personasEventoRegistradas = new Set(JSON.parse(sessionStorage.getItem(cacheEventoKey) || '[]'));
+
+function obtenerClavePersona() {
+    const datos = datosPersonalesInput.value.trim().toUpperCase();
+    const dni = datos.match(/DNI\s*:\s*([0-9]+)/i);
+    return dni ? `DNI:${dni[1]}` : `DATOS:${datos}`;
+}
+
+function guardarCacheEvento() {
+    sessionStorage.setItem(cacheEventoKey, JSON.stringify([...personasEventoRegistradas]));
+}
+
+function informarDuplicadoEvento() {
+    if (scannerStatus) scannerStatus.textContent = 'Persona ya registrada en este lote';
+    limpiarFormulario();
+}
 
 function mostrarCargando(mostrar) {
     if (loadingOverlay) {
@@ -317,6 +335,17 @@ btnRegistrar.addEventListener('click', async () => {
         return;
     }
 
+    const clavePersona = modo === 'evento' ? obtenerClavePersona() : '';
+    if (modo === 'evento' && personasEventoRegistradas.has(clavePersona)) {
+        informarDuplicadoEvento();
+        return;
+    }
+
+    if (modo === 'evento') {
+        personasEventoRegistradas.add(clavePersona);
+        guardarCacheEvento();
+    }
+
     mostrarCargando(true);
 
     const selectedOption = anfitrionSelect.options[anfitrionSelect.selectedIndex];
@@ -368,6 +397,10 @@ btnRegistrar.addEventListener('click', async () => {
         limpiarFormulario();
 
     } catch (error) {
+        if (modo === 'evento') {
+            personasEventoRegistradas.delete(clavePersona);
+            guardarCacheEvento();
+        }
         mostrarCargando(false);
         console.error("Error crítico de red:", error);
         alert("❌ Error de red. No se pudo conectar con la base de datos de Google.");
