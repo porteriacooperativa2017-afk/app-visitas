@@ -13,7 +13,7 @@
     <div id="loadingOverlay" class="loading-overlay" style="display: none;">
         <div class="loading-spinner-container">
             <div class="futuristic-spinner"></div>
-            <p>CARGANDO DATOS...</p>
+            <p>cargando datos</p>
         </div>
     </div>
 
@@ -42,7 +42,7 @@
                 
                 <div class="scanner-input-container">
                     <label for="escaneoRaw"><i class="fa-solid fa-qrcode"></i> Esperando Escaneo (DNI o QR)...</label>
-                    <input type="text" id="escaneoRaw" placeholder="Haga clic aquí y escanee..." autofocus required>
+                    <input type="text" id="escaneoRaw" placeholder="Escaneo automático listo..." autofocus required>
                     <span class="scanner-status" id="scannerStatus">Lector Listo</span>
                 </div>
                 <button type="button" class="btn-qr" onclick="iniciarEscaneo()">📸 Escanear QR</button>
@@ -87,9 +87,6 @@
                 <div class="form-actions">
                     <button type="button" id="btnRegistrar" class="btn-submit">
                         <i class="fa-solid fa-circle-check"></i> Registrar Ingreso
-                    </button>
-                    <button type="button" id="btnLimpiar" class="btn-secondary">
-                        Limpiar Todo
                     </button>
                 </div>
             </form>
