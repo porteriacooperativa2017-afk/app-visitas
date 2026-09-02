@@ -8,9 +8,14 @@
     --border-color: #cbd5e0;  
 }
 
-body.modo-normal { background-color: #ebf0f5 !important; --accent-blue: #0052cc; }
-body.modo-mercadolibre { background-color: #fff9db !important; --accent-blue: #f59e0b; }
-body.modo-evento { background-color: #e0f2fe !important; --accent-blue: #0284c7; }
+/* Forzar color de fondo absoluto a nivel HTML y Body para abarcar todo el exterior */
+html, body.modo-normal { background-color: #ebf0f5 !important; }
+html, body.modo-mercadolibre { background-color: #fff9db !important; }
+html, body.modo-evento { background-color: #e0f2fe !important; }
+
+body.modo-normal { --accent-blue: #0052cc; }
+body.modo-mercadolibre { --accent-blue: #f59e0b; }
+body.modo-evento { --accent-blue: #0284c7; }
 
 body.modo-mercadolibre .app-header { border-bottom-color: #facc15; }
 body.modo-evento .app-header { border-bottom-color: #0ea5e9; }
@@ -22,8 +27,11 @@ body.modo-evento .app-header { border-bottom-color: #0ea5e9; }
     font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
 }
 
+html {
+    min-height: 100vh;
+}
+
 body {
-    background-color: var(--bg-main);
     color: var(--text-title);
     display: flex;
     justify-content: center;
