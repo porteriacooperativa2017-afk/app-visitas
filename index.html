@@ -8,7 +8,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
-<body>
+<body class="modo-normal">
+    <!-- Pantalla de Carga Futurista -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner-container">
+            <div class="futuristic-spinner"></div>
+            <p>CARGANDO DATOS...</p>
+        </div>
+    </div>
+
     <div class="app-container">
         <header class="app-header">
             <div class="logo-container">
@@ -19,14 +27,13 @@
                 </div>
             </div>
             
-            <div class="event-switch-container">
-                <label class="switch-label">
-                    <i class="fa-solid fa-users"></i> ¿Modo Evento Masivo?
-                </label>
-                <label class="switch">
-                    <input type="checkbox" id="modoEvento">
-                    <span class="slider round"></span>
-                </label>
+            <div class="event-switch-container modes-container">
+                <label class="switch-label"><i class="fa-solid fa-bolt"></i> Modo:</label>
+                <select id="selectModo" class="mode-select">
+                    <option value="normal">Normal</option>
+                    <option value="mercadolibre">Mercado Libre</option>
+                    <option value="evento">Evento Masivo</option>
+                </select>
             </div>
         </header>
 
@@ -38,8 +45,8 @@
                     <input type="text" id="escaneoRaw" placeholder="Haga clic aquí y escanee..." autofocus required>
                     <span class="scanner-status" id="scannerStatus">Lector Listo</span>
                 </div>
-                <button class="btn-qr" onclick="iniciarEscaneo()">📸 Escanear QR</button>
-<div id="reader"></div>
+                <button type="button" class="btn-qr" onclick="iniciarEscaneo()">📸 Escanear QR</button>
+                <div id="reader"></div>
 
                 <div class="form-grid">
                     <div class="form-group full-width">
@@ -52,15 +59,20 @@
                         <input type="text" id="empresa" placeholder="Ingrese empresa o farmacia">
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group" id="groupBultos" style="display: none;">
+                        <label for="bultos"><i class="fa-solid fa-boxes-stacked"></i> Cantidad de Bultos</label>
+                        <input type="number" id="bultos" min="1" value="1" placeholder="Cantidad">
+                    </div>
+
+                    <div class="form-group" id="groupSector">
                         <label for="sector"><i class="fa-solid fa-map-location-dot"></i> Sector a Visitar</label>
                         <select id="sector" required>
                             <option value="">Seleccione un sector...</option>
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label for="anfitrion"><i class="fa-solid fa-user-tie"></i> Anfitrión / Quien Recibe</label>
+                    <div class="form-group" id="groupAnfitrion">
+                        <label for="anfitrion" id="labelAnfitrion"><i class="fa-solid fa-user-tie"></i> Anfitrión / Quien Recibe</label>
                         <select id="anfitrion" required>
                             <option value="">Seleccione anfitrión...</option>
                         </select>
@@ -83,16 +95,6 @@
             </form>
         </main>
     </div>
-    
-
     <script src="app.js"></script>
-</body>
-</html>
-    <button id="btnWhatsApp" class="btn-whatsapp" style="display:none; background-color: #25d366; color: white; margin-top: 15px;">
-    🚀 Enviar WhatsApp
-</button>
-</div>
-
-<script src="https://unpkg.com/html5-qrcode"></script>
 </body>
 </html>
