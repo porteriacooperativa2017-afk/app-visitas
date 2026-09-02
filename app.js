@@ -110,10 +110,11 @@ const bultosInput = document.getElementById('bultos');
 const groupAnfitrion = document.getElementById('groupAnfitrion');
 const labelAnfitrion = document.getElementById('labelAnfitrion');
 const btnRegistrar = document.getElementById('btnRegistrar');
-const btnLimpiar = document.getElementById('btnLimpiar');
 const loadingOverlay = document.getElementById('loadingOverlay');
 
 let timeoutAutoGuardar = null;
+let ultimoEscaneoEvento = '';
+let momentoUltimoEscaneoEvento = 0;
 
 function mostrarCargando(mostrar) {
     if (loadingOverlay) {
@@ -196,6 +197,8 @@ selectModo.addEventListener('change', () => {
         cargarSectores();
         sectorSelect.value = "EVENTO";
         sectorSelect.dispatchEvent(new Event('change'));
+        anfitrionSelect.value = "EVENTO";
+        iniciarEscaneo();
     } else {
         groupBultos.style.display = 'none';
         groupEmpresa.style.display = 'flex';
@@ -241,9 +244,10 @@ escaneoRawInput.addEventListener('input', () => {
     }
 
     if (selectModo.value === 'evento' && datosPersonalesInput.value && !datosPersonalesInput.value.includes("NO RECONOCIDO")) {
+        // Espera a que el lector termine de enviar el texto completo.
         timeoutAutoGuardar = setTimeout(() => {
             if (btnRegistrar) btnRegistrar.click(); 
-        }, 200); 
+        }, 700); 
     }
 });
 
@@ -255,14 +259,20 @@ function limpiarFormulario() {
         if (empresaInput) empresaInput.value = '';
         if (sectorSelect) sectorSelect.value = '';
         if (anfitrionSelect) anfitrionSelect.innerHTML = '<option value="">Seleccione anfitrión...</option>';
+    } else if (modo === 'mercadolibre') {
+        if (empresaInput) empresaInput.value = '';
+        if (sectorSelect) sectorSelect.value = 'Guardia';
+        if (anfitrionSelect) anfitrionSelect.innerHTML = '<option value="">Seleccione propietario...</option>';
+    } else {
+        if (empresaInput) empresaInput.value = 'EVENTO';
+        if (sectorSelect) sectorSelect.value = 'EVENTO';
+        if (anfitrionSelect) anfitrionSelect.innerHTML = '<option value="EVENTO">EVENTO</option>';
     }
     if (bultosInput) bultosInput.value = '1';
     const obsField = document.getElementById('observaciones');
     if (obsField) obsField.value = '';
     if (escaneoRawInput) escaneoRawInput.focus();
 }
-
-if (btnLimpiar) btnLimpiar.addEventListener('click', limpiarFormulario);
 
 async function iniciarEscaneo() {
     if (html5QrCode.isScanning) return;
@@ -279,11 +289,17 @@ async function iniciarEscaneo() {
                 }
             },
             (decodedText) => {
+                if (selectModo.value === 'evento') {
+                    const ahora = Date.now();
+                    if (decodedText === ultimoEscaneoEvento && ahora - momentoUltimoEscaneoEvento < 2000) return;
+                    ultimoEscaneoEvento = decodedText;
+                    momentoUltimoEscaneoEvento = ahora;
+                }
                 if (escaneoRawInput) {
                     escaneoRawInput.value = decodedText;
                     escaneoRawInput.dispatchEvent(new Event('input', { bubbles: true }));
                 }
-                html5QrCode.stop();
+                if (selectModo.value !== 'evento') html5QrCode.stop();
             },
             (errorMessage) => {}
         );
@@ -339,9 +355,9 @@ btnRegistrar.addEventListener('click', async () => {
         const nombreVisita = datosPersonalesInput.value;
 
         if (modo === 'normal') {
-            mensajeWhatsApp = `👋 *Estimado/a ${nombreAnfitrion}*:\n\nLe informamos que se ha anunciado una nueva visita para usted:\n\n👤 *Visitante:* ${nombreVisita}\n🏢 *Empresa:* ${empresaVal}\n\n🕒 El visitante aguarda su autorización para el ingreso.\n\n_Atentamente,\nControl de Accesos COFARMEN_`;
+            mensajeWhatsApp = `👋 *Estimado/a ${nombreAnfitrion}:*\n\n🔔 Se anunció una nueva visita para usted.\n\n👤 *Visitante:* ${nombreVisita}\n🏢 *Empresa:* ${empresaVal}\n\n🛂 La persona se encuentra en la guardia, aguardando su autorización para ingresar.\n\n✅ Cuando pueda, por favor confirme cómo proceder.\n\n_Atentamente,_\n_*Control de Accesos COFARMEN*_`;
         } else if (modo === 'mercadolibre') {
-            mensajeWhatsApp = `📦 *Estimado/a ${nombreAnfitrion}*:\n\nTiene un envío de la empresa *${empresaVal}* con *${cantidadBultos} bulto(s)* para ser retirado en la guardia.\n\n_Atentamente,\nControl de Accesos COFARMEN_`;
+            mensajeWhatsApp = `📦 *Señor/a ${nombreAnfitrion}:*\n\n🔔 Tiene un envío de la empresa *${empresaVal}* para ser retirado en la guardia.\n\n📦 *Cantidad de bultos:* ${cantidadBultos}\n📍 *Lugar de retiro:* Guardia\n\n✅ Cuando pueda, por favor acérquese a retirarlo.\n\n_Atentamente,_\n_*Control de Accesos COFARMEN*_`;
         }
 
         if (mensajeWhatsApp && nroContacto && nroContacto !== 'N/A') {
