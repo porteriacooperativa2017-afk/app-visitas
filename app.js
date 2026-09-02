@@ -118,6 +118,8 @@ let ultimoEscaneoEvento = '';
 let momentoUltimoEscaneoEvento = 0;
 const cacheEventoKey = 'qrU_evento_personas_registradas';
 const personasEventoRegistradas = new Set(JSON.parse(sessionStorage.getItem(cacheEventoKey) || '[]'));
+const cacheLoteEventoKey = 'qrU_evento_lote_pendiente';
+const loteEventoPendiente = JSON.parse(sessionStorage.getItem(cacheLoteEventoKey) || '[]');
 
 function obtenerClavePersona() {
     const datos = datosPersonalesInput.value.trim().toUpperCase();
@@ -131,6 +133,37 @@ function guardarCacheEvento() {
 
 function informarDuplicadoEvento() {
     if (scannerStatus) scannerStatus.textContent = 'Persona ya registrada en este lote';
+    limpiarFormulario();
+}
+
+function guardarLoteEvento() {
+    sessionStorage.setItem(cacheLoteEventoKey, JSON.stringify(loteEventoPendiente));
+    if (scannerStatus) scannerStatus.textContent = `${loteEventoPendiente.length} persona(s) en el lote pendiente`;
+}
+
+function agregarAlLoteEvento() {
+    if (!datosPersonalesInput.value || datosPersonalesInput.value.includes('NO RECONOCIDO')) return;
+
+    const clavePersona = obtenerClavePersona();
+    if (personasEventoRegistradas.has(clavePersona)) {
+        informarDuplicadoEvento();
+        return;
+    }
+
+    const persona = {
+        datosPersonales: datosPersonalesInput.value.toUpperCase(),
+        empresa: 'EVENTO',
+        sector: 'EVENTO',
+        anfitrion: 'EVENTO',
+        observaciones: 'SIN OBSERVACIONES',
+        bultos: '',
+        modo: 'evento',
+        clavePersona
+    };
+    loteEventoPendiente.push(persona);
+    personasEventoRegistradas.add(clavePersona);
+    guardarCacheEvento();
+    guardarLoteEvento();
     limpiarFormulario();
 }
 
@@ -262,9 +295,9 @@ escaneoRawInput.addEventListener('input', () => {
     }
 
     if (selectModo.value === 'evento' && datosPersonalesInput.value && !datosPersonalesInput.value.includes("NO RECONOCIDO")) {
-        // Espera a que el lector termine de enviar el texto completo.
+        // Espera a que el lector termine y guarda la persona en el lote.
         timeoutAutoGuardar = setTimeout(() => {
-            if (btnRegistrar) btnRegistrar.click(); 
+            agregarAlLoteEvento();
         }, 700); 
     }
 });
@@ -328,22 +361,39 @@ async function iniciarEscaneo() {
 
 btnRegistrar.addEventListener('click', async () => {
     const modo = selectModo.value;
+
+    if (modo === 'evento') {
+        if (!loteEventoPendiente.length) {
+            alert('Todavía no hay personas pendientes en el lote.');
+            return;
+        }
+
+        mostrarCargando(true);
+        try {
+            await Promise.all(loteEventoPendiente.map(datosObj => fetch(URL_API_GOOGLE, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify(datosObj)
+            })));
+            loteEventoPendiente.length = 0;
+            guardarLoteEvento();
+            mostrarCargando(false);
+            alert('✅ Lote enviado a la hoja de cálculo con éxito.');
+            limpiarFormulario();
+        } catch (error) {
+            mostrarCargando(false);
+            alert('❌ Error de red. El lote sigue pendiente para reintentar.');
+            console.error('Error al enviar el lote de evento:', error);
+        }
+        return;
+    }
+
     const requiereAnfitrion = groupAnfitrion.style.display !== 'none';
 
     if (!datosPersonalesInput.value || !sectorSelect.value || (requiereAnfitrion && !anfitrionSelect.value)) {
         alert('Por favor, complete los campos obligatorios antes de registrar.');
         return;
-    }
-
-    const clavePersona = modo === 'evento' ? obtenerClavePersona() : '';
-    if (modo === 'evento' && personasEventoRegistradas.has(clavePersona)) {
-        informarDuplicadoEvento();
-        return;
-    }
-
-    if (modo === 'evento') {
-        personasEventoRegistradas.add(clavePersona);
-        guardarCacheEvento();
     }
 
     mostrarCargando(true);
@@ -397,10 +447,6 @@ btnRegistrar.addEventListener('click', async () => {
         limpiarFormulario();
 
     } catch (error) {
-        if (modo === 'evento') {
-            personasEventoRegistradas.delete(clavePersona);
-            guardarCacheEvento();
-        }
         mostrarCargando(false);
         console.error("Error crítico de red:", error);
         alert("❌ Error de red. No se pudo conectar con la base de datos de Google.");
