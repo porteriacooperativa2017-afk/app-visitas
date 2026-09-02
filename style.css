@@ -1,5 +1,7 @@
 :root {
-    --bg-main: #ebf0f5;       
+    --bg-normal: #ebf0f5;       
+    --bg-mercadolibre: #fff9db;       
+    --bg-evento: #e0f2fe;       
     --bg-card: #ffffff;       
     --text-title: #1a202c;    
     --text-body: #4a5568;     
@@ -7,18 +9,6 @@
     --accent-success: #2f855a;
     --border-color: #cbd5e0;  
 }
-
-/* Forzar color de fondo absoluto a nivel HTML y Body para abarcar todo el exterior */
-html, body.modo-normal { background-color: #ebf0f5 !important; }
-html, body.modo-mercadolibre { background-color: #fff9db !important; }
-html, body.modo-evento { background-color: #e0f2fe !important; }
-
-body.modo-normal { --accent-blue: #0052cc; }
-body.modo-mercadolibre { --accent-blue: #f59e0b; }
-body.modo-evento { --accent-blue: #0284c7; }
-
-body.modo-mercadolibre .app-header { border-bottom-color: #facc15; }
-body.modo-evento .app-header { border-bottom-color: #0ea5e9; }
 
 * {
     box-sizing: border-box;
@@ -28,18 +18,38 @@ body.modo-evento .app-header { border-bottom-color: #0ea5e9; }
 }
 
 html {
-    min-height: 100vh;
+    height: 100%;
+    width: 100%;
 }
 
 body {
-    color: var(--text-title);
+    margin: 0;
+    padding: 40px 20px;
+    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    padding: 40px 20px;
+    color: var(--text-title);
     transition: background-color 0.3s ease;
 }
+
+body.modo-normal { 
+    background-color: var(--bg-normal) !important; 
+    --accent-blue: #0052cc; 
+}
+
+body.modo-mercadolibre { 
+    background-color: var(--bg-mercadolibre) !important; 
+    --accent-blue: #f59e0b; 
+}
+
+body.modo-evento { 
+    background-color: var(--bg-evento) !important; 
+    --accent-blue: #0284c7; 
+}
+
+body.modo-mercadolibre .app-header { border-bottom-color: #facc15; }
+body.modo-evento .app-header { border-bottom-color: #0ea5e9; }
 
 .app-container {
     background: var(--bg-card);
@@ -248,7 +258,6 @@ body {
     margin-bottom: 15px;
 }
 
-/* Pantalla de Carga Futurista con z-index máximo */
 .loading-overlay {
     position: fixed;
     top: 0;
